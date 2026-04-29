@@ -321,5 +321,280 @@ onShow(async () => {
 .page {
 	min-height: 100vh;
 	background-color: $bg-color;
+	padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* 右上角编辑/取消按钮 */
+.edit-btn {
+	position: fixed;
+	top: calc(var(--status-bar-height, 0px) + 55px);
+	right: $spacing-lg;
+	z-index: 100;
+	color: $primary-color;
+	font-size: 28rpx;
+	padding: 8rpx 24rpx;
+}
+
+/* 未登录空状态 */
+.empty-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding-top: 200rpx;
+
+	&__action {
+		margin-top: $spacing-lg;
+		width: 400rpx;
+	}
+
+	&__btn {
+		width: 100%;
+		height: 80rpx;
+		line-height: 80rpx;
+		background: linear-gradient(135deg, $primary-color, $primary-color-light);
+		color: $uni-text-color-inverse;
+		font-size: 28rpx;
+		border-radius: $btn-radius;
+		border: none;
+
+		&::after {
+			border: none;
+		}
+	}
+}
+
+/* 可滚动内容区 */
+.profile-scroll {
+	height: 100vh;
+	padding: $spacing-md;
+}
+
+.profile-scroll--editing {
+	padding-bottom: 140rpx;
+}
+
+/* ========== 头像卡片 ========== */
+.avatar-card {
+	background-color: $card-bg;
+	border-radius: $card-radius;
+	box-shadow: $shadow-light;
+	padding: $spacing-xl $spacing-lg;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-bottom: $spacing-md;
+
+	&__img-wrap {
+		position: relative;
+	}
+
+	&__img {
+		width: 128rpx;
+		height: 128rpx;
+		border-radius: $uni-border-radius-circle;
+		background-color: $uni-bg-color-grey;
+
+		&--default {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+	}
+
+	&__camera {
+		position: absolute;
+		bottom: 0;
+		right: -4rpx;
+		width: 40rpx;
+		height: 40rpx;
+		background-color: $primary-color;
+		border-radius: $uni-border-radius-circle;
+		border: 4rpx solid $card-bg;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	&__name {
+		font-size: 34rpx;
+		font-weight: 600;
+		color: $text-color;
+		margin-top: $spacing-sm;
+	}
+
+	&__name-input {
+		font-size: 34rpx;
+		font-weight: 600;
+		color: $text-color;
+		text-align: center;
+		border-bottom: 2rpx solid $primary-color;
+		padding: 4rpx 0;
+		width: 240rpx;
+	}
+
+	&__account {
+		font-size: 24rpx;
+		color: $text-color-weak;
+		margin-top: $spacing-xs;
+	}
+
+	&__tags {
+		display: flex;
+		align-items: center;
+		gap: $spacing-xs;
+		margin-top: $spacing-sm;
+	}
+
+	&__type {
+		font-size: 22rpx;
+		color: $text-color-secondary;
+		background-color: $uni-bg-color-grey;
+		padding: 4rpx 16rpx;
+		border-radius: $btn-radius;
+	}
+
+	&__vip {
+		font-size: 22rpx;
+		color: $uni-text-color-inverse;
+		background: linear-gradient(135deg, $vip-color-start, $vip-color-end);
+		padding: 4rpx 16rpx;
+		border-radius: $btn-radius;
+	}
+}
+
+/* ========== 信息卡片 ========== */
+.info-card {
+	background-color: $card-bg;
+	border-radius: $card-radius;
+	box-shadow: $shadow-light;
+	overflow: hidden;
+	margin-bottom: $spacing-md;
+
+	&__row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: $spacing-md $spacing-lg;
+		min-height: 100rpx;
+		position: relative;
+
+		&:not(:last-child)::after {
+			content: '';
+			position: absolute;
+			bottom: 0;
+			left: $spacing-lg;
+			right: 0;
+			height: 1rpx;
+			background-color: $border-color;
+		}
+
+		&--top {
+			align-items: flex-start;
+			padding-top: $spacing-lg;
+		}
+	}
+
+	&__label {
+		font-size: 28rpx;
+		color: $text-color;
+		flex-shrink: 0;
+		width: 80rpx;
+	}
+
+	&__value {
+		flex: 1;
+		text-align: right;
+		font-size: 28rpx;
+		color: $text-color;
+		margin-right: $spacing-xs;
+		overflow: hidden;
+
+		&--flex-end {
+			display: flex;
+			justify-content: flex-end;
+		}
+
+		&--placeholder {
+			color: $uni-text-color-placeholder;
+		}
+
+		&--readonly {
+			color: $text-color-weak;
+		}
+
+		&--highlight {
+			color: $primary-color;
+			font-weight: 500;
+		}
+	}
+
+	&__input {
+		font-size: 28rpx;
+		color: $text-color;
+		text-align: right;
+		border: none;
+		width: 100%;
+		background: transparent;
+	}
+
+	&__textarea {
+		font-size: 28rpx;
+		color: $text-color;
+		text-align: right;
+		border: none;
+		width: 100%;
+		background: transparent;
+		min-height: 40rpx;
+		max-height: 200rpx;
+	}
+
+	&__text-ellipsis {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		max-width: 400rpx;
+	}
+
+	&__arrow {
+		color: $uni-text-color-disable;
+		font-size: 28rpx;
+		flex-shrink: 0;
+	}
+
+	&__counter {
+		text-align: right;
+		padding: 0 $spacing-lg $spacing-sm;
+		font-size: 22rpx;
+		color: $text-color-weak;
+	}
+}
+
+/* ========== 保存按钮 ========== */
+.save-bar {
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	padding: $spacing-md $spacing-lg;
+	padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
+	background-color: $card-bg;
+	box-shadow: $shadow-light;
+	z-index: 50;
+
+	&__btn {
+		width: 100%;
+		height: 88rpx;
+		line-height: 88rpx;
+		background: linear-gradient(135deg, $primary-color, $primary-color-light);
+		color: $uni-text-color-inverse;
+		font-size: 32rpx;
+		font-weight: 500;
+		border-radius: $btn-radius;
+		border: none;
+
+		&::after {
+			border: none;
+		}
+	}
 }
 </style>
