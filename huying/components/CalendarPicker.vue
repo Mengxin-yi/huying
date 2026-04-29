@@ -295,7 +295,8 @@ function onTouchStart(e) {
 function onTouchEnd(e) {
   const deltaX = e.changedTouches[0].clientX - touchStartX.value
   const deltaY = e.changedTouches[0].clientY - touchStartY.value
-  if (Math.abs(deltaX) > 30 && Math.abs(deltaX) > Math.abs(deltaY)) {
+  // 阈值 25px（≈50rpx），水平位移 > 垂直位移时触发
+  if (Math.abs(deltaX) > 25 && Math.abs(deltaX) > Math.abs(deltaY)) {
     if (deltaX < 0) {
       nextPage()
     } else {
@@ -451,8 +452,8 @@ defineExpose({
 }
 
 .calendar__dot {
-  width: 8rpx;
-  height: 8rpx;
+  width: 4rpx;
+  height: 4rpx;
   border-radius: 50%;
 }
 
