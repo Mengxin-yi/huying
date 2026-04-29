@@ -1,0 +1,1099 @@
+<template>
+	<view :class="{'content-inner': true, 'tabs': true, 'weixin': isWeixin}">
+		<view class=""
+			style="background: #fff;z-index:900;width:100vw;padding:10rpx 0;box-shadow: 0 0 10px rgba(0,0,0,0.1),inset 0 0 8px rgba(255,255,255,0.3);">
+			<uni-card :border="false" :isFull="true" padding="0" spacing="10" :is-shadow="false"
+				v-if="pageElement.weiguang.search">
+				<uni-list :border="false">
+					<uni-list-item title="">
+						<template v-slot:body>
+							<!-- AndrewYy: 去掉了搜索两个字 -->
+							<uni-search-bar style="width: 82%;" v-model="serchbar" placeholder="标题/关键词/单位名称"
+								bgColor="#EEEEEE" clearButton="auto" cancelButton="none" @keydown.enter="handleSearcha"
+								@clear="handleSearch" :cancelText="''" />
+							<button @click="handleSearcha"
+								style="width:50px;height: 34px;padding: 0px;margin-left:10px;" class="mini-btn"
+								type="primary" size="mini">搜索</button>
+						</template>
+					</uni-list-item>
+					<!-- <uni-list-item style="background-color: #eee;" v-if="perfectVisible" showArrow title="完善信息,推荐更准"
+						rightText="去设置" class="auth" clickable @click="handlePerfect" /> -->
+					<uni-notice-bar v-if="perfectVisible" class="auth" clickable showArrow show-icon scrollable
+						text="不错失任何一个机会，立刻建立第一项订阅吧" @click="handlePerfect" />
+				</uni-list>
+			</uni-card>
+			<scroll-view id="tab-bar" class="scroll-h" :scroll-x="true" :show-scrollbar="false"
+				:scroll-into-view="scrollInto">
+				<view v-for="(tab,index) in tabBars" :key="tab.id" class="uni-tab-item" :id="tab.id"
+					:data-current="index" @click="ontabtap">
+					<text class="uni-tab-item-title"
+						:class="tabIndex==index ? 'uni-tab-item-title-active' : ''">{{tab.name}}</text>
+				</view>
+			</scroll-view>
+			<!-- <view class="line-h"></view> -->
+		</view>
+		<swiper :current="tabIndex" style="background:#F7F7F7;" class="swiper-box" :duration="300"
+			@change="ontabchange">
+			<swiper-item class="swiper-item" v-for="(tab,index1) in newsList" :key="index1">
+				<!-- #ifdef APP-NVUE -->
+				<list class="scroll-v list" enableBackToTop="true" scroll-y loadmoreoffset="15"
+					@loadmore="loadMore(index1)">
+					<refresh class="refresh" @refresh="onrefresh(index1)" @pullingdown="onpullingdown"
+						:display="tab.refreshing ? 'show' : 'hide'">
+						<div class="refresh-view">
+							<image class="refresh-icon" :src="refreshIcon"
+								:style="{width: (tab.refreshing || pulling) ? 0: '30px'}"
+								:class="{'refresh-icon-active': tab.refreshFlag}"></image>
+							<loading-indicator class="loading-icon" animating="true"
+								v-if="tab.refreshing"></loading-indicator>
+							<text class="loading-text">{{tab.refreshText}}</text>
+						</div>
+					</refresh>
+					<cell v-for="(newsitem,index2) in tab.data" :key="newsitem.id">
+						<view v-if="newsitem._media" @click.stop="" v-html="newsitem.content"></view>
+						<media-item :options="newsitem" @close="close(index1,index2)" @clickTrigger="goDetail(newsitem)"
+							@longpressTrigger="handleLongPress(newsitem)" v-if="!newsitem._media"></media-item>
+					</cell>
+					<cell class="loading-more" v-if="tab.isLoading || tab.data.length > 4">
+						<text class="loading-more-text">{{tab.loadingText}}</text>
+					</cell>
+				</list>
+				<!-- #endif -->
+
+				<!-- #ifndef APP-NVUE -->
+
+				<scroll-view class="scroll-v list" scroll-with-animation="true" show-scrollbar="false"
+					:scroll-top="scrollTop" @scroll="scroll" scroll-y @scrolltolower="loadMore(index1)">
+					<page-empty v-if="!tab.data || Object.keys(tab.data).length === 0"></page-empty>
+					<view style="margin-top: 10px;" class="" v-else>
+						<uni-list style="" v-for="(newsitem,index2) in tab.data" :key="newsitem.id" :border="false">
+							<uni-list-item>
+								<template v-slot:body>
+									<view v-if="newsitem._media" @click.stop="" v-html="newsitem.content"></view>
+									<media-item :options="newsitem" @close="close(index1,index2)"
+										@clickTrigger="goDetail(newsitem)" @longpressTrigger="handleLongPress(newsitem)"
+										v-if="!newsitem._media"></media-item>
+								</template>
+							</uni-list-item>
+
+						</uni-list>
+					</view>
+					<view class="loading-more" v-if="tab.isLoading || tab.data.length > 4">
+						<text class="loading-more-text">{{tab.loadingText}}</text>
+					</view>
+					<view class="" style="width: 100%;height: 50px;" v-if="tab.isLoading || tab.data.length > 4">
+
+					</view>
+				</scroll-view>
+
+				<!-- #endif -->
+			</swiper-item>
+		</swiper>
+		<!-- AndrewYy: 修改了权限判断 -->
+		<uni-fab ref="fab" style="width:33px;height:33px;" :pattern="pattern"
+			:content="pageElement.weiguang.multiColumn ? content : content.filter(e => e.text !== '栏目')"
+			horizontal="right" vertical="bottom" direction="horizontal" @trigger="handleSmart" />
+		<novice-guidance v-if="perfectVisible" :step="step"></novice-guidance>
+		<cc-rightPopup :isSingleSel="!pageElement.weiguang.multiColumn" :pop-show="popShowChannel" :colors="colors"
+			:classList="classListChannel" @sureClick="sureClickChannel" @hideClick="hideright"
+			:price-show="false"></cc-rightPopup>
+		<cc-rightPopup :pop-show="popShowFilter" :colors="colors" :classList="classListFilter"
+			@sureClick="sureClickFilter" @hideClick="hideright" :price-show="false"></cc-rightPopup>
+		<cc-rightPopup :pop-show="popShowSort" :colors="colors" :classList="classListSort" @sureClick="sureClickSort"
+			@hideClick="hideright" :price-show="false"></cc-rightPopup>
+		<uni-popup ref="popup" background-color="#fff" @change="changeNote" :isMaskClick="false">
+			<view class="popup-content">
+				<view class="district">
+					<view class="row title">添加到事程</view>
+					<view class="row">
+						<lxCalendar @change="changeCalendar"></lxCalendar>
+					</view>
+					<view class="row">
+						<picker mode="time" :value="remindOption.time" @change="bindTimeChange">
+							<view class="uni-input">
+								{{remindOption.time && remindOption.time.length ? remindOption.time : '自定义时间'}}
+							</view>
+						</picker>
+					</view>
+					<view class="row">
+						<button type="default" @click="handleDismissNote">取消</button>
+						<button type="primary" @click="handleSubmitNote">添加</button>
+					</view>
+				</view>
+			</view>
+		</uni-popup>
+		<!-- 提示窗示例 -->
+		<uni-popup ref="alertDialog" type="dialog">
+			<uni-popup-dialog type="info" cancelText="关闭" confirmText="同意" title="" content="用户未权限请购买会员!"
+				@confirm="dialogConfirm"></uni-popup-dialog>
+		</uni-popup>
+		<!-- v-if="profile.user_type !='个人用户'" -->
+		<!-- <FloatBall v-if="profile && profile?.user_type != '个人用户'" @myClick='handledClick'></FloatBall> -->
+		<FloatBall @myClick='handledClick'></FloatBall>
+	</view>
+</template>
+
+<script>
+	import pageUtil from '../../common/js/utils/page.js';
+	import mediaItem from './news-item.nvue';
+	import lxCalendar from '../../components/lx-calendar/lx-calendar.vue';
+	import imgSmartReserve from '/static/icon/smart/reserve.png';
+	import imgSmartReserveHL from '/static/icon/smart/reserveHL.png';
+	import imgZxkf from '/static/image/zxkf.png';
+	import imgSmartSort from '/static/icon/smart/sort.png';
+	import imgSmartSortHL from '/static/icon/smart/sortHL.png';
+	import imgSmartFilter from '/static/icon/smart/filter.png';
+	import imgSmartFilterHL from '/static/icon/smart/filterHL.png';
+	import FloatBall from '../../components/FloatBall/FloatBall.vue'
+
+	// 缓存每页最多
+	const MAX_CACHE_DATA = 100;
+	// 缓存页签数量
+	const MAX_CACHE_PAGE = 3;
+
+	export default {
+		components: {
+			mediaItem,
+			lxCalendar,
+			FloatBall
+		},
+		data() {
+			return {
+				scrollTop: 0,
+				old: {
+					scrollTop: 0
+				},
+				form: {
+					openPush: false
+				},
+				query: {
+					search_text: '',
+					data_type: '',
+					order: 'default',
+					time_type: 0,
+					page: 1,
+					page_size: 10
+				},
+				newsList: [],
+				serchbar: '',
+				cacheTab: [],
+				tabIndex: 0,
+				tabBars: [],
+				scrollInto: "",
+				showTips: false,
+				navigateFlag: false,
+				pulling: false,
+				profile: {},
+				refreshIcon: "",
+				pattern: {
+					color: '#7A7E83',
+					backgroundColor: '#fff',
+					selectedColor: '#007AFF',
+					buttonColor: '#007AFF',
+					iconColor: '#fff',
+					icon: 'list'
+				},
+				pattern2: {
+					color: '#7A7E83',
+					backgroundColor: '#fff',
+					selectedColor: '#007AFF',
+					buttonColor: '#007AFF',
+					iconColor: '#fff',
+					icon: ''
+				},
+				content: [{
+					iconPath: imgSmartReserve,
+					selectedIconPath: imgSmartReserveHL,
+					text: '栏目',
+					active: false
+				}, {
+					iconPath: imgSmartSort,
+					selectedIconPath: imgSmartSortHL,
+					text: '排序',
+					active: false
+				}, {
+					iconPath: imgSmartFilter,
+					selectedIconPath: imgSmartFilterHL,
+					text: '筛选',
+					active: false
+				}],
+				step: {
+					name: 'weiguang/list',
+					vueFixes: false,
+					guideList: [{
+							el: '.auth',
+							tips: '点击完善个人信息，获得更准确的内容推荐',
+							next: '下一步',
+							part: 'left',
+							weixin: {
+								grid: {
+									top: 'navBarHeight'
+								}
+							}
+						}
+						// {
+						// 	el: '.uni-fab__circle',
+						// 	tips: '点击"+"号按钮，可以添加新的日程安排',
+						// 	next: '下一步'
+						// }
+					]
+				},
+				colors: '#557ff7',
+				popShowSort: false,
+				classListSort: [{
+					name: '排序内容',
+					id: 1,
+					child: []
+				}],
+				popShowFilter: false,
+				classListFilter: [{
+					name: '发布时间',
+					id: 1,
+					child: []
+				}],
+				isWeixin: false,
+				remindOption: {
+					date: '',
+					time: ''
+				},
+				perfectVisible: false,
+				popShowChannel: false,
+				classListChannel: [{
+					name: '频道类型',
+					id: 1,
+					child: []
+				}],
+				pageElement: pageUtil.pageElement()
+			}
+		},
+		watch: {
+			tabIndex(newVal, oldVal) {
+				this.serchbar = ''
+			}
+		},
+		onLoad() {
+			this.initChannel();
+			this.initPerfect();
+		},
+		onShow() {
+			pageUtil.webApi.getpublishcommentlikenum().then((res) => {
+				if (res.status_code == 200) {
+					if (res.num > 0) {
+						uni.setTabBarBadge({
+							index: 3,
+							text: res.num + ''
+						})
+					} else {
+						uni.removeTabBarBadge({
+							index: 3,
+						})
+					}
+				}
+			})
+			pageUtil.checkDocumentTitle();
+			const profile = uni.getStorageSync('profile')
+			if (profile) {
+				this.profile = JSON.parse(profile)
+			} else {
+				// 未登录
+			}
+
+			console.log(uni.getStorageSync('profile'))
+		},
+		onPullDownRefresh() {
+			uni.stopPullDownRefresh();
+			// this.initPerfect();
+			// this.initChannel();
+			this.initData();
+		},
+		mounted() {
+			pageUtil.checkWechatAll();
+			this.isWeixin = pageUtil.isWeixin();
+			this.refreshIcon = pageUtil.sysdict.icon.refresh;
+			this.classListSort[0].child = pageUtil.sysdict.sortOrderType;
+			this.classListFilter[0].child = pageUtil.sysdict.filterTimeType;
+		},
+		methods: {
+			// 数字人悬浮窗点击事件
+			handledClick() {
+				pageUtil.checkDocumentTitle();
+				const profile = uni.getStorageSync('profile')
+				if (profile) {
+					this.profile = JSON.parse(profile)
+				} else {
+					// 未登录
+				}
+				// 判断是否跳转到唯一页面
+				if (this.profile.id === 21479) {
+					uni.navigateTo({
+						url: '/pages/kefu/index'
+					});
+
+				} else {
+					uni.navigateTo({
+						url: '/pages/kefu/userIndex'
+					});
+				}
+			},
+
+
+			//购买会员跳转
+			dialogConfirm() {
+				uni.navigateTo({
+					url: '/pages/prefer/vip/index'
+				});
+			},
+			initData() {
+				this.newsList[this.tabIndex].query.page = 1;
+				this.getList(this.tabIndex);
+				// setTimeout(() => {
+
+				// 	uni.stopPullDownRefresh();
+				// }, 300);
+			},
+			initPerfect() {
+				pageUtil.webApi.getOrderList({
+						_silent: true
+					})
+					.then(res => {
+						this.perfectVisible = res.data.length === 0;
+					})
+					.catch(err => {
+						pageUtil.toast(err);
+					});
+			},
+			initChannel() {
+				pageUtil.webApi.getWeiguangChannel({})
+					.then(res => {
+						var arr = res.columns.map(m => {
+							var arrChannel = pageUtil.sysdict.weiguangType.filter(e => e.id === m.trim());
+							if (arrChannel.length > 0) {
+								var n = Object.assign({}, arrChannel[0]);
+								return n;
+							}
+							return {};
+						});
+						this.tabIndex = 0;
+						this.tabBars = arr;
+						this.newsList = [];
+						this.tabBars.forEach((tabBar) => {
+							var param = Object.assign({}, this.query);
+							param.data_type = tabBar.id;
+							this.newsList.push({
+								data: [],
+								isLoading: false,
+								refreshText: "",
+								loadingText: '加载更多...',
+								query: param,
+								max: 0
+							});
+						});
+						this.getList(0);
+					})
+					.catch(err => {
+						pageUtil.toast(err);
+					});
+			},
+			goDetail(e) {
+				var activeTab = this.newsList[this.tabIndex];
+				// if (activeTab.query.data_type === 'publish') {
+				// 	return;
+				// }
+				if (this.navigateFlag) {
+					return;
+				}
+				this.navigateFlag = true;
+				var param = Object.assign({}, e);
+				delete param['content'];
+				delete param['content_str'];
+				delete param['contentHtml'];
+				var uname = uni.getStorageSync('ms_username');
+				var uid = uname ? pageUtil.helper.other.base64Encode(uname) : '';
+				if (activeTab.query.data_type === 'publish') {
+					pageUtil.gotoPage('publish/detail?data_id=' + param.data_id + '&data_type=' + param.data_type +
+						'&type=weiguang&uid=' + uid);
+
+					e.read_status = 1;
+					e.read_num += 1;
+				} else {
+					pageUtil.gotoPage('weiguang/detail?data_id=' + param.data_id + '&data_type=' + param.data_type +
+						'&type=weiguang&uid=' + uid);
+
+					e.read_status = 1;
+					e.read_num += 1;
+					// pageUtil.gotoPage('weiguang/detail?data=' + JSON.stringify(param));
+				}
+				setTimeout(() => {
+					this.navigateFlag = false;
+				}, 200);
+			},
+			close(index1, index2) {
+				uni.showModal({
+					content: '是否删除本条信息？',
+					success: (res) => {
+						if (res.confirm) {
+							this.newsList[index1].data.splice(index2, 1);
+						}
+					}
+				})
+			},
+			getList(index, loadMore) {
+				if (!this.newsList.hasOwnProperty(index)) {
+					return;
+				}
+				let activeTab = this.newsList[index];
+				var param = Object.assign({}, activeTab.query);
+				if (loadMore) {
+					if (activeTab.max <= activeTab.data.length) {
+						this.newsList[index].loadingText = '没有更多数据了!';
+						return;
+					}
+					param.page += 1;
+				}
+				pageUtil.webApi.getWeiguangList(param)
+					.then(res => {
+						var list = res.data.map(m => {
+							var n = activeTab.query.data_type === 'publish' ? pageUtil.mapping
+								.mapWeiguangYouquan(m) : pageUtil.mapping.mapWeiguangDetail(m);
+							return n;
+						});
+						pageUtil.cast.getInListCast(list)
+							.then(resList => {
+								if (loadMore && list.length > 0) {
+									activeTab.query.page += 1;
+									activeTab.data = activeTab.data.concat(resList);
+								} else if (!loadMore) {
+									activeTab.data = resList;
+								}
+
+								activeTab.max = res.total;
+								uni.stopPullDownRefresh();
+							});
+
+					})
+					.catch(err => {
+						pageUtil.toast(err);
+						uni.stopPullDownRefresh();
+					});
+
+				console.log(activeTab)
+			},
+			loadMore(e) {
+				setTimeout(() => {
+					this.getList(this.tabIndex, true);
+				}, 500)
+			},
+			ontabtap(e) {
+				let index = e.target.dataset.current || e.currentTarget.dataset.current;
+				// this.tabIndex = index;
+				this.switchTab(index);
+			},
+			ontabchange(e) {
+				this.serchbar = '';
+				let index = e.target.current || e.detail.current;
+				// this.tabIndex = index
+				this.clearTabData(index)
+				this.switchTab(index);
+			},
+			switchTab(index) {
+				let that = this;
+				if (this.tabIndex === index) {
+					return;
+				} {
+					that.serchbar = '';
+					let activeTab = that.newsList[that.tabIndex];
+					activeTab.query.search_text = that.serchbar;
+					activeTab.query.page = 1;
+					that.getList(index);
+					setTimeout(() => {
+						this.scrollTop = 0
+					}, 1000);
+				}
+				this.tabIndex = index
+
+			},
+			clearTabData(e) {
+				this.newsList[e].data.length = 0;
+				this.newsList[e].loadingText = "加载更多...";
+			},
+			refreshData() {},
+			onrefresh(e) {
+				var tab = this.newsList[this.tabIndex];
+				if (!tab.refreshFlag) {
+					return;
+				}
+				tab.refreshing = true;
+				tab.refreshText = "正在刷新...";
+
+				setTimeout(() => {
+					this.refreshData();
+					this.pulling = true;
+					tab.refreshing = false;
+					tab.refreshFlag = false;
+					tab.refreshText = "已刷新";
+					setTimeout(() => { // TODO fix ios和Android 动画时间相反问题
+						this.pulling = false;
+					}, 500);
+				}, 2000);
+			},
+			onpullingdown(e) {
+				var tab = this.newsList[this.tabIndex];
+				if (tab.refreshing || this.pulling) {
+					return;
+				}
+				if (Math.abs(e.pullingDistance) > Math.abs(e.viewHeight)) {
+					tab.refreshFlag = true;
+					tab.refreshText = "释放立即刷新";
+				} else {
+					tab.refreshFlag = false;
+					tab.refreshText = "下拉可以刷新";
+				}
+			},
+			handleSearcha(e) {
+				let activeTab = this.newsList[this.tabIndex];
+				activeTab.query.search_text = this.serchbar;
+				activeTab.query.page = 1;
+				this.clearTabData(this.tabIndex)
+				this.getList(this.tabIndex);
+				//返回顶部
+				this.scrollTop += 1;
+				// setTimeout(() => {
+				// 	this.scrollTop+=1;
+				// }, 1000);
+
+				// this.$nextTick(function() {
+				// 	this.scrollTop = 0
+				// });
+			},
+			handleSearch(e) {
+				this.serchbar = '';
+				// pageUtil.toast(e.value);
+				let activeTab = this.newsList[this.tabIndex];
+				activeTab.query.search_text = this.serchbar;
+				activeTab.query.page = 1;
+				this.clearTabData(this.tabIndex)
+				this.getList(this.tabIndex);
+				//返回顶部
+				setTimeout(() => {
+					this.scrollTop = 0
+				}, 1000);
+				// this.scrollTop = this.old.scrollTop
+				// this.$nextTick(function() {
+				// 	this.scrollTop = 0
+				// });
+			},
+			handleSmart(e) {
+				// this.content[e.index].active = !e.item.active;
+				if (e.item.text === '栏目') {
+					this.classListChannel[0].child = pageUtil.sysdict.weiguangType.map(m => {
+						var n = Object.assign({}, m);
+						var index = this.tabBars.findIndex(e => e.id === m.id);
+						n.current = index > -1;
+						return n;
+					});
+					this.popShowChannel = true;
+				} else if (e.item.text === '排序') {
+					this.popShowSort = true;
+				} else {
+					this.popShowFilter = true;
+				}
+			},
+			changeClick(arr) {
+				// 适配小程序 样式需要在父级改变
+				this.classList = arr;
+			},
+			hideright() {
+				this.popShowSort = false;
+				this.popShowFilter = false;
+				this.popShowChannel = false;
+			},
+			scroll: function(e) {
+				this.old.scrollTop = e.detail.scrollTop
+			},
+			sureClickSort(paramDict, selArr) {
+				this.popShowSort = false;
+				let activeTab = this.newsList[this.tabIndex];
+				var arr = selArr.filter(e => e.current);
+				activeTab.query.order = arr.length > 0 ? arr[0].id : 'default';
+				this.initData();
+				//返回顶部
+				this.scrollTop = this.old.scrollTop
+				this.$nextTick(function() {
+					this.scrollTop = 0
+				});
+
+				// uni.showModal({
+				//     title: '筛选数据',
+				//     content: '筛选价格数据 = ' + JSON.stringify(paramDict) + ' 筛选按钮数据= ' + JSON.stringify(selArr)
+				// })
+			},
+			sureClickFilter(paramDict, selArr) {
+				this.popShowFilter = false;
+				let activeTab = this.newsList[this.tabIndex];
+				var arr = selArr.filter(e => e.current);
+				activeTab.query.time_type = arr.length > 0 ? arr[0].id : 0;
+				this.initData();
+				//返回顶部
+				this.scrollTop = this.old.scrollTop
+				this.$nextTick(function() {
+					this.scrollTop = 0
+				});
+			},
+			handleLongPress(e) {
+				var date = pageUtil.helper.date.formatDateTime(new Date()).substring(0, 10);
+				this.remindOption = {
+					date: date,
+					time: '',
+					data: e
+				};
+				this.$refs.popup.open('center');
+			},
+			changeNote(e) {},
+			changeCalendar(e) {
+				this.remindOption.date = e.fulldate;
+			},
+			handleDismissNote() {
+				this.$refs.popup.close();
+			},
+			handleSubmitNote() {
+				if (pageUtil.isFirstUse()) {
+					return;
+				}
+				var title = this.remindOption.data.data_type === 'publish' ? this.remindOption.data.company : this
+					.remindOption.data.title;
+				var content = this.remindOption.data.abstract ? this.remindOption.data.abstract : this.remindOption.data
+					.content.substring(0, 140);
+				var param = Object.assign({}, {
+					data_id: this.remindOption.data.data_id,
+					data_type: this.remindOption.data.data_type
+				}, {
+					title: title,
+					content: content,
+					remind_time: this.remindOption.date + ' ' + this.remindOption.time,
+					weight: 0,
+					news_set: 0
+				});
+				if (pageUtil.helper.other.isEmpty(this.remindOption.time)) {
+					var nowadays = new Date();
+					var nowadaysStr = pageUtil.helper.date.formatDateTime(nowadays).substring(0, 10);
+					if (param.remind_time.trim() === nowadaysStr) {
+						var timeNew = pageUtil.helper.date.addHours(nowadays, 1);
+						var time = pageUtil.helper.date.formatDateTime(timeNew).substring(11, 19);
+						param.remind_time = param.remind_time + time;
+					} else {
+						param.remind_time = param.remind_time + "08:00:00";
+					}
+				}
+
+				pageUtil.webApi.addNote(param)
+					.then(res => {
+						pageUtil.toast('添加事程成功');
+						pageUtil.markState('note/add');
+						this.$refs.popup.close();
+					})
+					.catch(err => {
+						pageUtil.toast(err);
+					});
+			},
+			bindTimeChange(e) {
+				this.remindOption.time = e.detail.value;
+			},
+			handlePerfect() {
+				if (!this.pageElement.noteAdd.clickMe) {
+					this.form.openPush = false;
+					this.$refs.alertDialog.open()
+				} else {
+					pageUtil.gotoPage('order/add');
+				}
+			},
+			sureClickChannel(paramDict, selArr) {
+				var arr = selArr.filter(e => e.current).map(m => {
+					return m.id;
+				});
+				pageUtil.webApi.updateWeiguangChannel({
+						columns: JSON.stringify(arr)
+					})
+					.then(res => {
+						this.initChannel();
+					})
+					.catch(err => {
+						pageUtil.toast(err);
+					});
+				this.popShowChannel = false;
+
+
+				// var arr = selArr.filter(e => e.current);
+				// uni.setStorageSync('classListChannel', JSON.stringify(arr));
+				// this.initChannel();
+				// this.popShowChannel = false;
+			}
+		}
+	}
+</script>
+
+<style lang="scss" scoped>
+	// #app, uni-app, uni-page, uni-page-wrapper{
+	// 	overflow-y: hidden !important;
+	// }
+	// .swiper-box ::-webkit-scrollbar,
+	// body::-webkit-scrollbar {
+	// 	width: 16px;
+	// 	height: 16px;
+	// 	background: transparent;
+	// }
+	:deep(.uni-list-item__container) {
+		justify-content: center;
+		padding: 10px !important;
+		align-items: center;
+	}
+
+	:deep(.uni-searchbar__cancel) {
+		width: 50px;
+		padding-left: 10px;
+		line-height: 36px;
+		font-size: 14px;
+		color: #fff;
+		cursor: pointer;
+		background: #007AFF;
+		border-radius: 3px;
+		margin-left: 5px;
+	}
+
+	:deep(#app, uni-app, uni-page, uni-page-wrapper) {
+		overflow-y: hidden !important;
+	}
+
+	:deep(.uni-app--showtabbar uni-page-head[uni-page-head-type='default'] ~ uni-page-wrapper) {
+		// height: calc(100% - env(safe-area-inset-top) - var(--tab-bar-height) - env(safe-area-inset-bottom)) !important;
+		// height: calc(100% - env(safe-area-inset-top) - var(--tab-bar-height) ) !important;
+		height: 100% !important;
+		overflow-y: hidden !important;
+		// height: 93% !important;
+	}
+
+	:deep(.uni-app--showtabbar uni-page-wrapper::after) {
+		display: none !important;
+	}
+
+	:deep(uni-page-body) {
+		background: #fff !important;
+		height: 100% !important;
+	}
+
+	.content-inner {
+		padding-top: 0rpx;
+
+		/* #ifndef APP-NVUE */
+		.uni-card {
+			flex: initial;
+		}
+
+		/* #endif */
+		/* #ifndef APP-PLUS */
+		page {
+			width: 100%;
+			min-height: 100%;
+			display: flex;
+		}
+
+		/* #endif */
+		&.tabs {
+			flex: 1;
+			flex-direction: column;
+			overflow: hidden;
+			background-color: #ffffff;
+			/* #ifndef APP-PLUS */
+			height: 100%;
+			/* #endif */
+		}
+
+		.scroll-h {
+			width: 750rpx;
+			/* #ifdef H5 */
+			width: 100%;
+			/* #endif */
+			height: 80rpx;
+			flex-direction: row;
+			/* #ifndef APP-PLUS */
+			white-space: nowrap;
+			/* #endif */
+			/* flex-wrap: nowrap; */
+			/* border-color: #cccccc;
+			border-bottom-style: solid;
+			border-bottom-width: 1px; */
+		}
+
+		.line-h {
+			height: 1rpx;
+			background-color: #cccccc;
+		}
+
+		.uni-tab-item {
+			/* #ifndef APP-PLUS */
+			display: inline-block;
+			/* #endif */
+			flex-wrap: nowrap;
+			padding-left: 34rpx;
+			padding-right: 34rpx;
+		}
+
+		.uni-tab-item-title {
+			color: #555;
+			font-size: 30rpx;
+			height: 80rpx;
+			line-height: 80rpx;
+			flex-wrap: nowrap;
+			/* #ifndef APP-PLUS */
+			white-space: nowrap;
+			/* #endif */
+			// font-weight: 600;
+		}
+
+		.uni-tab-item-title-active {
+			color: #007AFF;
+		}
+
+		.uni-tab-item-title-active::after {
+			content: "";
+			width: 100%;
+			height: 3px;
+			background: #007AFF;
+			display: block;
+			margin-top: -4px;
+			border-radius: 3px;
+		}
+
+		.swiper-box {
+			flex: 1;
+		}
+
+		.swiper-item {
+			flex: 1;
+			flex-direction: row;
+		}
+
+		.scroll-v {
+			flex: 1;
+			/* #ifndef MP-ALIPAY */
+			flex-direction: column;
+			/* #endif */
+			width: 750rpx;
+			width: 100%;
+		}
+
+		.update-tips {
+			position: absolute;
+			left: 0;
+			top: 41px;
+			right: 0;
+			padding-top: 5px;
+			padding-bottom: 5px;
+			background-color: #FDDD9B;
+			align-items: center;
+			justify-content: center;
+			text-align: center;
+		}
+
+		.update-tips-text {
+			font-size: 14px;
+			color: #ffffff;
+		}
+
+		.refresh {
+			width: 750rpx;
+			width: 100%;
+			height: 64px;
+			justify-content: center;
+		}
+
+		.refresh-view {
+			flex-direction: row;
+			flex-wrap: nowrap;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.refresh-icon {
+			width: 30px;
+			height: 30px;
+			transition-duration: .5s;
+			transition-property: transform;
+			transform: rotate(0deg);
+			transform-origin: 15px 15px;
+		}
+
+		.refresh-icon-active {
+			transform: rotate(180deg);
+		}
+
+		.loading-icon {
+			width: 20px;
+			height: 20px;
+			margin-right: 5px;
+			color: #999999;
+		}
+
+		.loading-text {
+			margin-left: 2px;
+			font-size: 16px;
+			color: #999999;
+		}
+
+		.loading-more {
+			align-items: center;
+			justify-content: center;
+			padding-top: 10px;
+			padding-bottom: 10px;
+			text-align: center;
+		}
+
+		.loading-more-text {
+			font-size: 28rpx;
+			color: #999;
+		}
+
+		// novice-guidance for vue/nvue
+		:deep(.guide) {
+			position: absolute;
+
+			.tool-btn {
+				flex-direction: row;
+			}
+		}
+
+		:deep(.right_popup) {
+
+			.pop_scroll {
+				// height: calc(100vh - 300rpx);
+				height: calc(100vh - 260rpx);
+				margin-top: 80rpx;
+			}
+
+			.input_box,
+			.class_box,
+			.bottom_btn {
+				flex-direction: row;
+				flex-wrap: wrap;
+			}
+		}
+
+		&.weixin {
+			:deep(.right_popup) {
+
+				.pop_scroll {
+					height: calc(100vh - 190rpx);
+					margin-top: 0rpx;
+				}
+			}
+		}
+
+		:deep(.uni-popup__wrapper) {
+			background-color: transparent !important;
+
+			.popup-content {
+				.district {
+					background-color: #fff;
+					width: calc(100vw - 60rpx);
+					padding: 40rpx 40rpx;
+					border-radius: 20rpx;
+					align-items: center;
+
+					.row {
+						flex-direction: row;
+						justify-content: center;
+						min-height: 100rpx;
+						align-items: center;
+						font-size: 40rpx;
+						width: 100%;
+
+						.date {
+							flex: 1;
+
+							.title {
+								font-weight: normal;
+								font-size: 30rpx;
+							}
+
+							.head,
+							.date_dl {
+								flex-direction: row;
+							}
+
+							.nowadays {
+								// border-radius: 16rpx;
+								// height: 100%;
+								// display: flex;
+								// align-items: center;
+								// justify-content: center;
+							}
+						}
+
+						uni-button {
+							height: 80rpx;
+							padding: 0rpx 60rpx;
+
+							&:last-child {
+								margin-left: 40rpx;
+							}
+						}
+
+						.uni-input {
+							border-bottom: 1rpx solid var(--inner-line-color);
+							padding: 0rpx 0rpx;
+						}
+					}
+
+					.title {
+						font-size: 50rpx;
+						font-weight: bold;
+					}
+				}
+			}
+		}
+
+		:deep(._media) {
+			height: 180rpx !important;
+			box-sizing: border-box;
+			margin: 20rpx 30rpx;
+			width: calc(100vw - 60rpx) !important;
+		}
+
+		:deep(.uni-scroll-view-content) {
+			// padding-top: 100px;
+		}
+	}
+</style>
+
+<style scoped>
+	/* 第一个按钮向上偏移 */
+	.fab-wrapper-1 {
+		position: fixed;
+		right: 0;
+		bottom: 0;
+		transform: translateY(-140rpx);
+		/* 向上偏移140rpx */
+		z-index: 999;
+	}
+
+	/* 如果需要更精细的控制，可以针对组件内部样式 */
+	.fab-wrapper-1>>>.uni-fab__btn {
+		margin-bottom: 140rpx !important;
+	}
+
+
+	/* 覆盖默认的 plus 图标 */
+	.custom-fab .uniui-plusempty:before {
+		content: '\e642' !important;
+		/* 替换为其他 uni-icons 图标的 unicode */
+	}
+
+	/* 或者替换为自定义图片（需要额外处理） */
+	.custom-fab .fab-circle-icon {
+		background-image: url('/static/image/zxkf.png');
+		background-size: cover;
+	}
+
+	.custom-fab .fab-circle-icon:before {
+		content: '' !important;
+	}
+</style>

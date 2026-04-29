@@ -1,0 +1,68 @@
+<template>
+	<div style="width: 95%;padding: 10px;">
+		<!-- <hya-form ref="hyaForm" :infoList="infoList" /> -->
+		<view class="hya-form">
+			<view class="hya-form-item hya-form-bottom">
+				2
+			</view>
+		</view>
+	</div>
+</template>
+
+<script>
+	import hyaForm from '@/uni_modules/hya-form/components/hya-form/hya-form.uvue';
+	export default {
+		components: {
+			hyaForm	
+		},
+		data() {
+			return {
+				infoList: [{
+					type: 'input',
+					title: '手机号码',
+					placeholder: '请输入手机号码',
+					key: 'phone',
+					value: '',
+					titleIcon: 'shouji',
+					titleType: 4,
+					required: true,
+					errMsg: '',
+					disabled: false,
+					rules: [{
+						rule: '^1[3456789]\\d{9}$',
+						errMsg: '请输入正确的手机码'
+					}]
+				},{
+					type: 'picker',
+					title: '手机号码',
+					placeholder: '请输入手机号码',
+					key: 'phone',
+					value: '',
+					titleIcon: 'shouji',
+					titleType: 3,
+					required: true,
+					errMsg: '',
+					disabled: false,
+					rules: [{
+						rule: '^1[3456789]\\d{9}$',
+						errMsg: '请输入正确的手机码'
+					}]
+				}]
+			}
+		}
+	}
+</script>
+
+<style lang="scss" scoped>
+	.hya-form {
+		width: 100%;
+
+		.hya-form-item {
+			width: 100%;
+		}
+
+		.hya-form-bottom {
+			margin-bottom: 12px;
+		}
+	}
+</style>

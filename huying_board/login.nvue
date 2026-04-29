@@ -1,0 +1,97 @@
+<template>
+	<view class="content-inner">
+		<img style="height: 500rpx;" src="./static/image/echo.jpg" alt="" />
+		<h3 style="padding: 0rpx 100rpx 100rpx 100rpx;">{{hint}}</h3>
+			<fui-button radius="96rpx" width="80%" @click="tk()" style="color: #Fff;" >确 定</fui-button>
+	</view>
+</template>
+
+<script>
+	import pageUtil from './common/js/utils/page.js'
+	import fuiButton from '@/uni_modules/firstui-uvue/components/fui-button/fui-button.uvue';
+	export default {
+		data() {
+			return {
+				hint: '操作成功，正在处理中...'
+			}
+		},
+		components: {
+			fuiButton
+		},
+		mounted() {
+			this.getData();
+		},
+		methods: {
+			tk() {
+				var entity = this.$route.query;
+				uni.setStorageSync('token', entity.token);
+				console.log('??', entity.redirect_url)
+				if (entity.token) {
+					// pageUtil.goLandingPage();
+					if (entity.redirect_url == 'login') {
+						uni.switchTab({
+							url: '/pages/weiguang/list'
+						});
+					} else if (entity.redirect_url == 'vip') {
+						uni.switchTab({
+							url: '/pages/prefer/index'
+						});
+					} else if (entity.redirect_url == 'bind') {
+						uni.switchTab({
+							url: '/pages/prefer/index'
+						});
+					}
+				}
+			},
+			getData() {
+				var entity = this.$route.query;
+				this.hint = entity.msg;
+				// var msg = '['+ entity.status +']后台引导服务:' + window.location.href;
+				// console.log('bind',msg)
+				// return
+
+
+				// pageUtil.webApi.echoSystem(msg);
+				// // if (parseInt(entity.status) === 200) {
+				// 	if (entity.token) {
+				// 		uni.setStorageSync('token', entity.token);
+				// 		// pageUtil.goLandingPage();
+				// 		 if(entity.redirect_url=='login'){
+				// 			uni.switchTab({
+				// 				 url: '/pages/weiguang/list' 
+				// 			});
+				// 		}
+				// 		else if(entity.redirect_url=='vip'){
+				// 			uni.navigateBack({
+				// 				 url: '/pages/prefer/vip/index' 
+				// 			});
+				// 		}
+				// 		else if(entity.redirect_url=='bind'){
+				// 			uni.switchTab({
+				// 				 url: '/pages/prefer/index' 
+				// 			});
+				// 		}
+				// 	}
+				// }
+
+				// else if (entity.msg) {
+				// 	this.hint = entity.msg;
+				// }
+				// else {
+				// 	this.hint = '未知错误，请返回重新操作';
+				// }
+				// pageUtil.toast(JSON.stringify(this.$route.query));
+			}
+		}
+	}
+</script>
+
+<style lang="scss" scoped>
+	.content-inner {
+		align-items: center;
+		// justify-content: center;
+		padding-top: 180rpx;
+		height: 100vh;
+		background: #fff;
+	}
+</style>

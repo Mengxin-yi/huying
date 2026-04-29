@@ -1,0 +1,92 @@
+{
+    "id": "jz-h5RecorderManager",
+    "displayName": "jz-h5RecorderManager 录音插件",
+    "name": "jz-h5-recordermanager",
+    "version": "1.0.3",
+    "description": "H5环境下的录音插件，提供与 uni.getRecorderManager 完全兼容的 API 接口，支持录音和音频播放。v1.0.3修复跨平台兼容性，完善原生API继承",
+    "keywords": [
+        "录音",
+        "h5录音",
+        "h5录音插件"
+    ],
+    "repository": "https://gitcode.com/weixin_47770976/jz-h5-getRecorderManager",
+    "engines": {
+      "HBuilderX": "^4.65"
+    },
+    "dcloudext": {
+      "type": "sdk-js",
+      "sale": {
+        "regular": {
+          "price": "0.00"
+        },
+        "sourcecode": {
+          "price": "0.00"
+        }
+      },
+      "contact": {
+        "qq": "578031621"
+      },
+      "declaration": {
+        "ads": "无",
+        "data": "插件不采集任何数据",
+        "permissions": "麦克风权限"
+      },
+      "npmurl": "https://www.npmjs.com/package/jz-h5-recordermanager"
+    },
+    "uni_modules": {
+      "encrypt": [],
+      "platforms": {
+        "cloud": {
+          "tcb": "y",
+          "aliyun": "y",
+          "alipay": "n"
+        },
+        "client": {
+          "Vue": {
+            "vue2": "u",
+            "vue3": "y"
+          },
+          "App": {
+            "app-vue": "y",
+            "app-nvue": "n",
+            "app-harmony": "u",
+            "app-uvue": "n"
+        },
+          "H5-mobile": {
+            "Safari": "y",
+            "Android Browser": "y",
+            "微信浏览器(Android)": "y",
+            "QQ浏览器(Android)": "y"
+          },
+          "H5-pc": {
+            "Chrome": "y",
+            "IE": "u",
+            "Edge": "y",
+            "Firefox": "y",
+            "Safari": "y"
+          },
+          "小程序": {
+            "微信": "n",
+            "阿里": "n",
+            "百度": "n",
+            "字节跳动": "n",
+            "QQ": "n",
+            "钉钉": "n",
+            "快手": "n",
+            "飞书": "n",
+            "京东": "n"
+          },
+          "快应用": {
+            "华为": "n",
+            "联盟": "n"
+          }
+        }
+      }
+    },
+    "main": "js/index.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "JZ",
+    "license": "MIT"
+  } 

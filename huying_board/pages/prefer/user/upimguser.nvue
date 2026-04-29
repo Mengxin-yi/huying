@@ -1,0 +1,425 @@
+<template>
+	<view class="">
+		<uni-popup ref="message" type="message">
+			<uni-popup-message :type="msgType" :message="messageText" :duration="2000"></uni-popup-message>
+		</uni-popup>
+		<view class="conmbok">
+			<view>手动上传</view>
+			<view style="display: flex;flex-direction: row;">
+				<view class="upimg" v-if="tempFilePaths" style="margin-right: 10rpx;position: relative;" @click="dffgi">
+					<span :class="['cheag',choseindex==18?'cheag_activ':'']"></span>
+					<image style="width:100%;height: 100%;" :src="tempFilePaths"></image>
+				</view>
+				<view class="upimg" @click="sddowun">
+					<uni-icons type="camera-filled" :size="26" color="#B4B4B4"></uni-icons>
+				</view>
+			</view>
+		</view>
+		<view class="conmbok">
+			<view>系统选择</view>
+			<view class="teiru">
+				<view :class="['chosebg_'+`${index + 1}`]" v-for="(item,index) in baselist" @click="choseimg(index)"
+					:style="{backgroundImage:'url('+item+')'}">
+					<span :class="['cheag',choseindex==index?'cheag_activ':'']"></span>
+				</view>
+			</view>
+		</view>
+		<view class="">
+			<button @click="undata" style="width:80%;margin: 50rpx auto;" type="primary" >确定</button>
+		</view>
+	</view>
+</template>
+
+<script>
+	import pageUtil from '../../../common/js/utils/page.js';
+	var sourceType = [
+		['camera'],
+		['album'],
+		['camera', 'album']
+	]
+	var sizeType = [
+		['compressed'],
+		['original'],
+		['compressed', 'original']
+	]
+	export default {
+		data() {
+			return {
+				type: '',
+				msgType: '',
+				form: {},
+				baselist: [],
+				file: null,
+				tempFilePaths: null,
+				choseindex: null,
+				imageList: [],
+				sourceTypeIndex: 2,
+				sourceType: ['拍照', '相册', '拍照或相册'],
+				sizeTypeIndex: 2,
+				sizeType: ['压缩', '原图', '压缩或原图'],
+				countIndex: 4,
+			}
+		},
+		mounted() {
+			pageUtil.webApi.userdefaultavatarlist({}).then(res => {
+				this.baselist = res.items;
+			})
+			this.getData()
+		},
+		onLoad: function(option) {
+
+		},
+		onUnload() {
+			this.imageList = [];
+			this.sourceTypeIndex = 2;
+			this.sourceType = ['拍照', '相册', '拍照或相册'];
+			this.sizeTypeIndex = 2;
+			this.sizeType = ['压缩', '原图', '压缩或原图'];
+			this.countIndex = 4;
+		},
+		methods: {
+			messageToggle(type, info) {
+				this.msgType = type
+				this.messageText = info
+				this.$refs.message.open()
+			},
+			undata() {
+				if (this.choseindex !== null) {
+					if (this.choseindex == 18) {
+						//手动上传
+						console.log(this.tempFilePaths)
+						this.form.img = 1;
+						this.form.country = '';
+						this.form.files = [{
+							name: 'file',
+							uri: this.tempFilePaths
+						}];
+						console.log(this.form)
+						delete this.form.avatar_img;
+						// this.form.file = this.file;
+						pageUtil.webApi.editProfile(this.form)
+							.then(res => {
+								pageUtil.toast('提交成功')
+									.then(res => {
+										uni.navigateBack({
+											delta: 1
+										})
+									});
+							})
+							.catch(err => {
+								this.messageToggle('error', err)
+							});
+					} else {
+						//系统图片
+						this.form.img = 0;
+						this.form.country = '';
+						this.form.avatar_img = this.baselist[this.choseindex];
+						pageUtil.webApi.editProfile(this.form)
+							.then(res => {
+								pageUtil.toast('提交成功')
+									.then(res => {
+										uni.navigateBack({
+											delta: 1
+										})
+									});
+							})
+							.catch(err => {
+								this.messageToggle('error', err)
+							});
+					}
+				} else {
+					this.messageToggle('error', '请选择图像')
+				}
+
+			},
+			getData() {
+				let that = this;
+				uni.getStorage({
+					key: 'profile',
+					success: function(res) {
+						// console.log(res.data);
+						that.form = JSON.parse(res.data)
+					}
+				});
+			},
+			choseimg(index) {
+				this.choseindex = index
+			},
+			dffgi() {
+				this.choseindex = 18
+			},
+			async sddowun() {
+				const that = this;
+				uni.chooseImage({
+					sourceType: ['camera', 'album'],
+					sizeType: ['compressed'],
+					count: 1,
+					success: (res) => {
+						for (var key in res.tempFiles) {
+							var e = res.tempFiles[key];
+							if (e.size > pageUtil.constant.imageFileMaxSize) {
+								pageUtil.toast('单张图片大小不能超过' + pageUtil.constant.imageFileMaxSizeString);
+								return;
+							}
+						}
+						that.tempFilePaths = res.tempFilePaths[0];
+						// for (var key in res.tempFiles) {
+						// 	var e = res.tempFiles[key];
+						// 	if (e.size > pageUtil.constant.imageFileMaxSize) {
+						// 		pageUtil.toast('单张图片大小不能超过' + pageUtil.constant.imageFileMaxSizeString);
+						// 		return;
+						// 	}
+						// }
+						that.file = res.tempFiles[0];
+					},
+					fail: (err) => {
+						console.log("err: ", err);
+
+					}
+				})
+			}
+		}
+	}
+</script>
+
+<style lang="less" scoped>
+	.conmbok {
+		background: #fff;
+		padding: 10px;
+		border-radius: 3px;
+		width: 98%;
+		margin: 10px auto;
+	}
+
+	.upimg {
+		width: 100rpx;
+		height: 100rpx;
+		border-radius: 3px;
+		line-height: 100rpx;
+		background: #F3F3F3;
+	}
+
+	.teiru {
+		width: 100%;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: space-around;
+	}
+
+	.cheag {
+		border: 1px solid #d1d1d1;
+		background-color: #fff;
+		border-radius: 50%;
+		width: 32rpx;
+		height: 32rpx;
+		position: absolute;
+		right: 1px;
+		top: 1px;
+		z-index: 9999;
+	}
+
+	.cheag_activ {
+		color: #fff !important;
+		background-color: rgb(0, 122, 255);
+		border-color: rgb(0, 122, 255);
+	}
+
+	.cheag_activ::after {
+		font: normal normal normal 14px / 1 uni;
+		content: "✔";
+		font-size: 18px;
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -48%) scale(.73);
+		-webkit-transform: translate(-50%, -48%) scale(.73);
+	}
+
+	.chosebg_1 {
+		width: 120rpx;
+		height: 120rpx;
+		// background-image: url(./moimg/avatar1.png);
+		background-repeat: no-repeat;
+		background-size: 100% 100%;
+		margin-right: 10rpx;
+		margin-bottom: 10rpx;
+		margin-top: 10rpx;
+	}
+
+	.chosebg_2 {
+		width: 120rpx;
+		height: 120rpx;
+		// background-image: url(./moimg/avatar2.png);
+		background-repeat: no-repeat;
+		background-size: 100% 100%;
+		margin-right: 10rpx;
+		margin-bottom: 10rpx;
+		margin-top: 10rpx;
+	}
+
+	.chosebg_3 {
+		width: 120rpx;
+		height: 120rpx;
+		// background-image: url(./moimg/avatar3.png);
+		background-repeat: no-repeat;
+		background-size: 100% 100%;
+		margin-right: 10rpx;
+		margin-bottom: 10rpx;
+		margin-top: 10rpx;
+	}
+
+	.chosebg_4 {
+		width: 120rpx;
+		height: 120rpx;
+		// background-image: url(./moimg/avatar4.png);
+		background-repeat: no-repeat;
+		background-size: 100% 100%;
+		margin-right: 10rpx;
+		margin-bottom: 10rpx;
+		margin-top: 10rpx;
+	}
+
+	.chosebg_5 {
+		width: 120rpx;
+		height: 120rpx;
+		// background-image: url(./moimg/avatar5.png);
+		background-repeat: no-repeat;
+		background-size: 100% 100%;
+		margin-right: 10rpx;
+		margin-bottom: 10rpx;
+		margin-top: 10rpx;
+	}
+
+	.chosebg_6 {
+		width: 120rpx;
+		height: 120rpx;
+		// background-image: url(./moimg/avatar6.png);
+		background-repeat: no-repeat;
+		background-size: 100% 100%;
+		margin-right: 10rpx;
+		margin-bottom: 10rpx;
+		margin-top: 10rpx;
+	}
+
+	.chosebg_7 {
+		width: 120rpx;
+		height: 120rpx;
+		// background-image: url(./moimg/avatar7.png);
+		background-repeat: no-repeat;
+		background-size: 100% 100%;
+		margin-right: 10rpx;
+		margin-bottom: 10rpx;
+		margin-top: 10rpx;
+	}
+
+	.chosebg_8 {
+		width: 120rpx;
+		height: 120rpx;
+		// background-image: url(./moimg/avatar8.png);
+		background-repeat: no-repeat;
+		background-size: 100% 100%;
+		margin-right: 10rpx;
+		margin-bottom: 10rpx;
+		margin-top: 10rpx;
+	}
+
+	.chosebg_9 {
+		width: 120rpx;
+		height: 120rpx;
+		// background-image: url(./moimg/avatar9.png);
+		background-repeat: no-repeat;
+		background-size: 100% 100%;
+		margin-right: 10rpx;
+		margin-bottom: 10rpx;
+		margin-top: 10rpx;
+	}
+
+	.chosebg_10 {
+		width: 120rpx;
+		height: 120rpx;
+		// background-image: url(./moimg/avatar10.png);
+		background-repeat: no-repeat;
+		background-size: 100% 100%;
+		margin-right: 10rpx;
+		margin-bottom: 10rpx;
+		margin-top: 10rpx;
+	}
+
+	.chosebg_11 {
+		width: 120rpx;
+		height: 120rpx;
+		// background-image: url(./moimg/avatar11.png);
+		background-repeat: no-repeat;
+		background-size: 100% 100%;
+		margin-right: 10rpx;
+		margin-bottom: 10rpx;
+		margin-top: 10rpx;
+	}
+
+	.chosebg_12 {
+		width: 120rpx;
+		height: 120rpx;
+		// background-image: url(./moimg/avatar12.png);
+		background-repeat: no-repeat;
+		background-size: 100% 100%;
+		margin-right: 10rpx;
+		margin-bottom: 10rpx;
+		margin-top: 10rpx;
+	}
+
+	.chosebg_13 {
+		width: 120rpx;
+		height: 120rpx;
+		// background-image: url(./moimg/avatar13.png);
+		background-repeat: no-repeat;
+		background-size: 100% 100%;
+		margin-right: 10rpx;
+		margin-bottom: 10rpx;
+		margin-top: 10rpx;
+	}
+
+	.chosebg_14 {
+		width: 120rpx;
+		height: 120rpx;
+		// background-image: url(./moimg/avatar14.png);
+		background-repeat: no-repeat;
+		background-size: 100% 100%;
+		margin-right: 10rpx;
+		margin-bottom: 10rpx;
+		margin-top: 10rpx;
+	}
+
+	.chosebg_15 {
+		width: 120rpx;
+		height: 120rpx;
+		// background-image: url(./moimg/avatar15.png);
+		background-repeat: no-repeat;
+		background-size: 100% 100%;
+		margin-right: 10rpx;
+		margin-bottom: 10rpx;
+		margin-top: 10rpx;
+	}
+
+	.chosebg_16 {
+		width: 120rpx;
+		height: 120rpx;
+		// background-image: url(./moimg/avatar16.png);
+		background-repeat: no-repeat;
+		background-size: 100% 100%;
+		margin-right: 10rpx;
+		margin-bottom: 10rpx;
+		margin-top: 10rpx;
+	}
+
+	.chosebg_17 {
+		width: 120rpx;
+		height: 120rpx;
+		// background-image: url(./moimg/avatar17.png);
+		background-repeat: no-repeat;
+		background-size: 100% 100%;
+		margin-right: 10rpx;
+		margin-bottom: 10rpx;
+		margin-top: 10rpx;
+	}
+</style>

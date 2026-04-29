@@ -1,0 +1,214 @@
+{
+	"easycom": {
+		"autoscan": true,
+		"custom": {
+			"^u--(.*)": "@/uni_modules/uview-plus/components/u-$1/u-$1.vue",
+			"^up-(.*)": "@/uni_modules/uview-plus/components/u-$1/u-$1.vue",
+			"^u-([^-].*)": "@/uni_modules/uview-plus/components/u-$1/u-$1.vue"
+		}
+	},
+	"pages": [
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "今日事",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/index/detail",
+			"style": {
+				"navigationBarTitleText": "任务详情"
+			}
+		},
+		{
+			"path": "pages/index/add",
+			"style": {
+				"navigationBarTitleText": "新增事程"
+			}
+		},
+		{
+			"path": "pages/index/calendar",
+			"style": {
+				"navigationBarTitleText": "日历"
+			}
+		},
+		{
+			"path": "pages/weiguang/index",
+			"style": {
+				"navigationBarTitleText": "微逛",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/weiguang/detail",
+			"style": {
+				"navigationBarTitleText": "详情"
+			}
+		},
+		{
+			"path": "pages/weiguang/search",
+			"style": {
+				"navigationBarTitleText": "搜索",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/subscribe/index",
+			"style": {
+				"navigationBarTitleText": "订阅",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/subscribe/add",
+			"style": {
+				"navigationBarTitleText": "添加订阅"
+			}
+		},
+		{
+			"path": "pages/subscribe/detail",
+			"style": {
+				"navigationBarTitleText": "订阅详情"
+			}
+		},
+		{
+			"path": "pages/publish/index",
+			"style": {
+				"navigationBarTitleText": "发布",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/publish/editor",
+			"style": {
+				"navigationBarTitleText": "编辑发布"
+			}
+		},
+		{
+			"path": "pages/publish/preview",
+			"style": {
+				"navigationBarTitleText": "预览"
+			}
+		},
+		{
+			"path": "pages/prefer/index",
+			"style": {
+				"navigationBarTitleText": "我的"
+			}
+		},
+		{
+			"path": "pages/prefer/profile",
+			"style": {
+				"navigationBarTitleText": "个人资料"
+			}
+		},
+		{
+			"path": "pages/prefer/vip",
+			"style": {
+				"navigationBarTitleText": "我的会员"
+			}
+		},
+		{
+			"path": "pages/prefer/order",
+			"style": {
+				"navigationBarTitleText": "我的订单"
+			}
+		},
+		{
+			"path": "pages/prefer/settings",
+			"style": {
+				"navigationBarTitleText": "设置"
+			}
+		},
+		{
+			"path": "pages/prefer/about",
+			"style": {
+				"navigationBarTitleText": "关于"
+			}
+		},
+		{
+			"path": "pages/prefer/feedback",
+			"style": {
+				"navigationBarTitleText": "意见反馈"
+			}
+		},
+		{
+			"path": "pages/prefer/company",
+			"style": {
+				"navigationBarTitleText": "企业认证"
+			}
+		},
+		{
+			"path": "pages/kefu/index",
+			"style": {
+				"navigationBarTitleText": "客服",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/login/index",
+			"style": {
+				"navigationBarTitleText": "登录",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/login/register",
+			"style": {
+				"navigationBarTitleText": "注册"
+			}
+		},
+		{
+			"path": "pages/login/forgot",
+			"style": {
+				"navigationBarTitleText": "忘记密码"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "时代呼应",
+		"navigationBarBackgroundColor": "#FFFFFF",
+		"backgroundColor": "#F5F6FA"
+	},
+	"tabBar": {
+		"color": "#999999",
+		"selectedColor": "#007AFF",
+		"borderStyle": "black",
+		"backgroundColor": "#FFFFFF",
+		"list": [
+			{
+				"pagePath": "pages/index/index",
+				"iconPath": "static/icon/tab-task.png",
+				"selectedIconPath": "static/icon/tab-task-active.png",
+				"text": "今日事"
+			},
+			{
+				"pagePath": "pages/weiguang/index",
+				"iconPath": "static/icon/tab-weiguang.png",
+				"selectedIconPath": "static/icon/tab-weiguang-active.png",
+				"text": "微逛"
+			},
+			{
+				"pagePath": "pages/subscribe/index",
+				"iconPath": "static/icon/tab-subscribe.png",
+				"selectedIconPath": "static/icon/tab-subscribe-active.png",
+				"text": "订阅"
+			},
+			{
+				"pagePath": "pages/publish/index",
+				"iconPath": "static/icon/tab-publish.png",
+				"selectedIconPath": "static/icon/tab-publish-active.png",
+				"text": "发布"
+			},
+			{
+				"pagePath": "pages/prefer/index",
+				"iconPath": "static/icon/tab-prefer.png",
+				"selectedIconPath": "static/icon/tab-prefer-active.png",
+				"text": "我的"
+			}
+		]
+	},
+	"uniIdRouter": {}
+}

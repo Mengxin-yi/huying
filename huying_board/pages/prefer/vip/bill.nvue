@@ -1,0 +1,208 @@
+<template>
+	<view class="content-inner" @click="handleCopy">
+		<page-empty v-if="!listData || Object.keys(listData).length === 0"></page-empty>
+		<ua-timeline type="card">
+
+			<ua-timeline-item v-for="(item, index) in listData" :class="{'success': item.state === '支付成功'}" timestamp=""
+				placement="top" :color="item.state === '支付成功' ? '#007aff' : '#e5e5e5'"
+				:size="item.state === '支付成功' ? 20 : 12" lineType="solid"
+				:lineColor="item.state === '支付成功' ? '#007aff' : '#e5e5e5'">
+				<uni-collapse ref="collapse">
+					<uni-collapse-item :title="item.result_time">
+						<view class="content">
+							<uni-list :border="false" direction="row">
+								<uni-list-item title="支付结果" :rightText="item.state" class="state" />
+								<uni-list-item title="订单编号" :rightText="item.number" class="number" />
+								<uni-list-item title="商品名称" :rightText="item.service" class="service" />
+								<!-- <uni-list-item title="服务名称" :rightText="item.service" class="service_type" /> -->
+								<uni-list-item title="服务类型/编码" :rightText="item.service_type" class="service_type" />
+								<uni-list-item title="激活时间" v-if="item.start_time" :rightText="item.start_time"
+									class="service_type" />
+								<uni-list-item title="有效时间" v-if="item.end_time" :rightText="item.end_time"
+									class="service_type" />
+								<uni-list-item title="推送次数" v-if="item.msg_num" :rightText="item.msg_num+''"
+									class="service_type" />
+								<uni-list-item title="原来次数" v-if="item.raw_flow_num" :rightText="item.raw_flow_num+''"
+									class="service_type" />
+								<uni-list-item title="剩余次数" v-if="item.flow_num" :rightText="item.flow_num+''"
+									class="service_type" />
+								<uni-list-item title="订单价格(元)" :rightText="item.price.toFixed(2) + ''" class="price" />
+								<uni-list-item title="申请开票" link="" to="" showArrow @click="toP(item)" />
+							</uni-list>
+						</view>
+					</uni-collapse-item>
+				</uni-collapse>
+			</ua-timeline-item>
+		</ua-timeline>
+
+		<!-- 输入框示例 -->
+		<uni-popup ref="inputDialog" type="dialog">
+			<!-- <uni-popup-dialog ref="inputClose" mode="input" title="申请开票" value="xuefeng@ugoolink.com"
+				placeholder="请输入邮箱地址" @confirm="dialogInputConfirm"></uni-popup-dialog> -->
+			<uni-popup-dialog type="info" cancelText="关闭" confirmText="确定" title="" content="请致电客服申请开票!"
+				@confirm="dialogConfirm" ></uni-popup-dialog>
+		</uni-popup>
+	</view>
+</template>
+
+<script>
+	import pageUtil from '../../../common/js/utils/page.js';
+
+	export default {
+		data() {
+			return {
+				statusList: [],
+				envUa: '',
+				envSys: '',
+				envHeight: '123',
+				envWechat: '',
+				pageDisplayed: false,
+				listData: []
+			}
+		},
+		onShow() {
+			this.pageDisplayed = true;
+		},
+		mounted() {
+			// pageUtil.checkWechatAll();
+
+			this.initShare();
+			// this.resize();
+			// this.getData();
+		},
+		methods: {
+			dialogConfirm(){
+				uni.makePhoneCall({
+					phoneNumber: '18610064932' //仅为示例
+				});
+			},
+			toP(data) {
+				this.$refs.inputDialog.open()
+				// uni.navigateTo({
+				// 	url: '/pages/prefer/vip/invoice'
+				// })
+			},
+			dialogInputConfirm() {
+
+			},
+			getData() {
+				var username = uni.getStorageSync('ms_username');
+				var param = Object.assign({}, {
+					kw: '',
+					size: 1000
+				});
+				pageUtil.webApi.myOrderList(param)
+					.then(res => {
+						this.listData = res.items.filter((x) => {
+							return x.state == '支付成功'
+						})
+						// this.listData = res.items
+						this.resize();
+					})
+					.catch(err => {
+						pageUtil.toast(err);
+					});
+
+				this.resize();
+			},
+			resize() {
+				this.$nextTick(() => {
+					// this.$refs.collapse.resize();
+				});
+			},
+			initShare() {
+				var that = this;
+				if (this.pageDisplayed) {
+					this.resize();
+					this.getData();
+				} else {
+					setTimeout(() => {
+						that.initShare();
+					}, 100);
+				}
+			},
+			handleCopy() {
+				// pageUtil.helper.other.copyToClipboard('');
+				// pageUtil.toast('已复制参数到粘贴板');
+			}
+		}
+	}
+</script>
+
+<style lang="scss" scoped>
+	.content-inner {
+		padding: 30rpx 30rpx;
+		background-color: #fff;
+
+		:deep(.uni-collapse-item__title-text) {
+			color: var(--default-color);
+			font-size: 26rpx;
+		}
+
+		// :deep(.uni-list-item__extra-text){
+		// 	color: #2CCD7F;
+		// }
+
+		:deep(.uni-collapse-item__title.uni-collapse-item-border) {
+			border-bottom: none !important;
+		}
+
+		:deep(.ve__timeline--card .ve__timeline-item__content) {
+			padding: 7px !important;
+		}
+
+		.content {
+			padding: 20rpx 20rpx;
+			box-sizing: border-box;
+			word-break: break-all;
+		}
+
+		:deep(.uni-collapse-item) {
+
+			&.success {
+				.uni-list-item__extra-text {
+					color: #2CCD7F;
+				}
+			}
+
+			.uni-list-item__content {
+				padding-left: 30rpx;
+			}
+		}
+
+		:deep(.ve__timeline-item) {
+
+			.uni-list-item {
+				padding: 4px 0px;
+
+				.uni-list-item__content-note {
+					color: var(--default-color);
+					font-size: 28rpx;
+				}
+
+				&.price {
+					.uni-list-item__content-note {
+						color: var(--success-color);
+						font-size: 32rpx;
+						font-weight: bold;
+					}
+				}
+			}
+
+			&.success {
+				.uni-list-item {
+
+					&.state {
+						.uni-list-item__content-note {
+							color: var(--primary-color);
+						}
+					}
+				}
+			}
+
+			.ve__timeline-item__timestamp {
+				color: var(--text-3rd-color);
+			}
+		}
+	}
+</style>

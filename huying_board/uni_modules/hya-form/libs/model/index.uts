@@ -1,0 +1,102 @@
+export type FormType = {
+	/**
+	 * 类型
+	 * input-输入框
+	 * password-密码框
+	 * picker-下拉选择框
+	 * date-日期
+	 * time-时间
+	 * dateTime-时间日期
+	 * textArea-文本框
+	 */
+	type : string;
+	/**
+	 * 标题
+	 */
+	title : string,
+	/**
+	 * 返回关键字
+	 */
+	key : string,
+	/**
+	 * 输入框实际值
+	 */
+	value : any,
+	/**
+	 * 标题类型，1-左右带背景色，2-左右带下划线，3-上下带下划线
+	 */
+	titleType ?: number,
+	/**
+	 * 标题图标，在titleType为1/2时使用
+	 */
+	titleIcon ?: string,
+	/**
+	 * 是否必填
+	 */
+	required ?: boolean,
+	/**
+	 * 无值默认展示
+	 */
+	placeholder ?: string,
+	/**
+	 * 校验规则
+	 */
+	rules ?: Array<RuleType>,
+	/**
+	 * 是否可填
+	 */
+	disabled ?: boolean,
+	/**
+	 * 错误提示信息
+	 */
+	errMsg ?: string,
+	/**
+	 * 是否展示选择
+	 */
+	pickerShow ?: boolean,
+	/**
+	 * 下拉选择的值
+	 */
+	pickerValue ?: Array<number>;
+	/**
+	 * 下拉选择
+	 */
+	columns ?: Array<ColumnType>
+}
+
+export type RuleType = {
+	/**
+	 * 校验规则
+	 */
+	rule : object,
+	/**
+	 * 错误提示信息
+	 */
+	errMsg : string
+}
+
+// 选择类型
+type ColumnType = {
+	/**
+	 * 实际值
+	 */
+	value : string,
+	/**
+	 * 展示值
+	 */
+	label : string,
+}
+
+/**
+ * picker组件父子传值类型
+ */
+export type PickerBack = {
+	/**
+	 * 是否展示
+	 */
+	show : boolean,
+	/**
+	 * 索引
+	 */
+	index : number
+}

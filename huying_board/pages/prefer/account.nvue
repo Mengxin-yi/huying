@@ -1,0 +1,132 @@
+<template>
+	<view class="content-inner">
+	<!-- 	<uni-card :border="false" :isFull="true" padding="0" spacing="10" :is-shadow="false">
+			<uni-list :border="false" @click="handlePasswordReset">
+				<uni-list-item showArrow title="重置密码" rightText="" />
+			</uni-list>
+		</uni-card> -->
+		<uni-card :border="false" :isFull="true" padding="0" spacing="10" :is-shadow="false">
+			<uni-list :border="false" @click="handleSecure">
+				<uni-list-item showArrow title="账号与安全" rightText="" />
+			</uni-list>
+		</uni-card>
+		<!-- <uni-card :border="false" :isFull="true" padding="0" spacing="10" :is-shadow="false">
+			<uni-list :border="false" @click="handlePasswordChange">
+				<uni-list-item showArrow title="修改密码" rightText="" />
+			</uni-list>
+		</uni-card> -->
+		<uni-card :border="false" :isFull="true" padding="0" spacing="10" :is-shadow="false">
+			<uni-list :border="false">
+				<uni-list-item ref="listNotice" title="新消息通知" rightText="" :show-switch="showPushButton" :switchChecked="allowPushNotice" @switchChange="handlePush" />
+			</uni-list>
+		</uni-card>
+		<uni-card :border="false" :isFull="true" padding="0" spacing="10" :is-shadow="false">
+			<uni-list :border="false" @click="handleCache">
+				<uni-list-item showArrow title="清理缓存" :rightText="cacheSize" />
+			</uni-list>
+		</uni-card>
+		<!-- <uni-card :border="false" :isFull="true" padding="0" spacing="10" :is-shadow="false">
+			<uni-list :border="false">
+				<uni-list-item showArrow title="绑定微信账号" rightText="" />
+			</uni-list>
+		</uni-card> -->
+		<button type="primary" @click="handleSignOut">退出登录</button>
+	</view>
+</template>
+
+<script>
+	import pageUtil from '../../common/js/utils/page.js';
+	
+	export default {
+		data() {
+			return {
+				allowPushNotice: false,
+				showPushButton: true,
+				cacheSize: ''
+			}
+		},
+		onShow() {
+			this.cacheSize = pageUtil.getCacheSize();
+		},
+		mounted() {
+			// pageUtil.checkWechatAll();
+			this.getData();
+		},
+		methods: {
+			getData() {
+				this.showPushButton = false;
+				pageUtil.webApi.getPushNoticeStatus({})
+				.then(res => {
+					this.allowPushNotice = res.news_set === 1;
+					this.showPushButton = true;
+				})
+				.catch(err => {
+					pageUtil.toast(err);
+				});
+			},
+			handlePasswordChange() {
+				pageUtil.gotoPage('prefer/user/changepassword');
+			},
+			handlePush(e) {
+				pageUtil.webApi.editPushNoticeStatus({news_set: e.value ? 1 : 0})
+				.then(res => {
+					this.getData();
+					// setTimeout(() => {
+					// 	this.$set(this.$data, 'allowPushNotice', res.news_set === 1);
+					// 	this.$refs.listNotice.$forceUpdate();
+					// }, 200);
+				})
+				.catch(err => {
+					pageUtil.toast(err);
+				});
+			},
+			handleSignOut() {
+				pageUtil.webApi.logout()
+				.then(res => {
+					uni.removeStorageSync('ms_username');
+					uni.removeStorageSync('token');
+					uni.removeStorageSync('credential');
+					uni.removeStorageSync('profile');
+					// pageUtil.gotoPage('prefer/user/signin');
+					uni.reLaunch({
+					    url: '/pages/prefer/user/signin'
+					});
+				})
+				.catch(err => {
+					pageUtil.toast(err);
+				});
+			},
+			handlePasswordReset() {
+				// pageUtil.webApi.resetPassword({})
+				// .then(res => {
+				// 	pageUtil.toast('密码重置成功');
+				// })
+				// .catch(err => {
+				// 	pageUtil.toast(err);
+				// });
+			},
+			handleCache() {
+				pageUtil.cleanCache();
+				pageUtil.toast('清理成功');
+			},
+			handleSecure() {
+				pageUtil.gotoPage('prefer/secure/index');
+			}
+		}
+	}
+</script>
+
+<style lang="scss" scoped>
+	.content-inner {
+		padding: 20rpx 0rpx;
+		
+		.uni-card {
+			margin-bottom: 20rpx !important;
+			padding: 0rpx 30rpx;
+		}
+		
+		uni-button {
+			margin: 0rpx 20rpx;
+		}
+	}
+</style>

@@ -1,0 +1,169 @@
+<template>
+	<view class="leo-list">
+		<template v-if="list.length">
+			<view class="uni-flex uni-row leo-align-items-center leo-space-between leo-list-item" v-for="(item, index) in list"
+			 :key="index" @click="handleDetail(item)">
+				<view class="uni-flex uni-row leo-align-items-center"  >
+					<view class="">
+						<view class="text-line-height-1 text-16 pingfangbold leo-ellipsis-1 multi-line;" style="margin-left: -7px;">
+							{{item.title || "暂无数据"}}
+						</view>
+						<!-- <view class="text-line-height-1 pingfangmedium text-12 leo-ellipsis-1" style="margin-top:5px; color: rgba(156,164,169,1);">
+							{{ item.msg_type || "暂无数据"}} 
+						</view> -->
+						<view class="text-line-height-1 pingfangmedium text-12 leo-ellipsis-1" style="margin-top:8px; color: rgba(156,164,169,1);">
+							{{ item.location || "暂无数据"}}
+						</view>
+						<view class="text-line-height-1 pingfangmedium text-12 leo-ellipsis-1" style="margin-top:4px; color: rgba(156,164,169,1);">
+							{{ item.publish_time || "暂无数据"}}
+						</view>
+					</view>
+				</view>
+				<view class="" v-if="showArrow">
+					<uni-icons :size="20" class="uni-icon-wrapper" color="#bbb" type="arrowright" />
+				</view>
+			</view>
+		</template>
+		<template v-else>
+			<!-- <view class="" style="text-align: center;">
+				暂无数据
+			</view> -->
+		</template>
+	</view>
+</template>
+
+<script>
+	import pageUtil from '../../common/js/utils/page.js';
+	export default {
+		props: {
+			list: {
+				type:Array,
+				default() {
+					return []
+				}
+			},
+			borderRadius: {
+				type: [Number, String],
+				default: 0
+			},
+			showArrow: {
+				type:Boolean,
+				default: true
+			},
+			showIcon:{
+				type:Boolean,
+				default: true
+			}
+		},
+		
+		data() {
+			return {
+			}
+		},
+		computed: {
+		},
+		methods: {
+			toType(sre) {
+				switch (sre) {
+					case 'bid':
+						return '招标'
+						break;
+					case 'job':
+						return '招聘'
+						break;
+					case 'notice':
+						return '通知'
+						break;
+					case 'project':
+						return '项目'
+						break;
+					case 'meeting':
+						return '会议'
+						break;
+					default:
+				}
+			},
+			handleDetail(obj) {
+				var uname = uni.getStorageSync('ms_username');
+				var uid = uname ? pageUtil.helper.other.base64Encode(uname) : '';
+				pageUtil.gotoPage('publish/detail?data_id=' + obj.data_id + '&data_type=' + obj.data_type + '&uid=' + uid);
+			},
+		}
+	}
+</script>
+
+<style lang="scss" scoped>
+	.multi-line {
+	    word-break: break-all;
+	    overflow: hidden;
+	    text-overflow: ellipsis;
+	    display: -webkit-box;
+	    -webkit-line-clamp: 2;
+	    -webkit-box-orient: vertical;
+	}
+	.leo-list {
+		
+		.leo-list-item {
+			padding: 36rpx 30rpx;
+			border-top: #e4e7ed 2rpx solid;
+			background: #fff;margin-top: 20rpx;
+			border-radius: 10rpx;
+
+			&:first-child {
+				border-top: #e4e7ed 0rpx solid;
+				
+			}
+
+			.icon {
+				display: block;
+				width: 64rpx;
+				height: 64rpx;
+			}
+		}
+	}
+	.uni-flex {
+		display: flex;
+		flex-direction: row;
+	}
+	
+	.uni-flex-item {
+		flex: 1;
+	}
+	
+	.uni-row {
+		flex-direction: row;
+	}
+	
+	.uni-column {
+		flex-direction: column;
+	}
+	
+	.leo-align-items-center {
+		align-items: center;
+	}
+	
+	.leo-space-between {
+		justify-content: space-between;
+	}
+	
+	.text-line-height-1 {
+		line-height: 1 !important;
+	}
+	
+	.text-12 {
+		font-size: 24rpx !important;
+	}
+	
+	.leo-ellipsis-1 {
+		width: 60vw;
+		font-size: 15px;
+		font-weight: 600;
+		display: -webkit-box;
+		text-overflow: -o-ellipsis-lastline;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		-webkit-line-clamp: 1;
+		line-clamp: 1;
+		-webkit-box-orient: vertical;
+	}
+</style>

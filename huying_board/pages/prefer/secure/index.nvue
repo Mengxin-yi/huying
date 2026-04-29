@@ -1,0 +1,101 @@
+<template>
+	<view class="content-inner">
+		<uni-card :border="false" :isFull="true" padding="0" spacing="10" :is-shadow="false">
+			<uni-list :border="false" @click="handleMobile">
+				<uni-list-item showArrow title="绑定手机" :rightText="mobile.indexOf('待') > -1 ? '去绑定' : '去修改'" :note="mobile" />
+			</uni-list>
+		</uni-card>
+		<uni-card :border="false" :isFull="true" padding="0" spacing="10" :is-shadow="false">
+			<uni-list :border="false" @click="handlePasswordChange">
+				<uni-list-item showArrow title="修改密码" rightText="" />
+			</uni-list>
+		</uni-card>
+		<uni-card :border="false" :isFull="true" padding="0" spacing="10" :is-shadow="false">
+			<uni-list :border="false" @click="handleBindWechat">
+				<uni-list-item showArrow title="绑定微信" rightText="" />
+			</uni-list>
+		</uni-card>
+		<uni-card :border="false" :isFull="true" padding="0" spacing="10" :is-shadow="false">
+			<uni-list :border="false" @click="handleUnbindWechat">
+				<uni-list-item showArrow title="解除微信绑定" rightText="" />
+			</uni-list>
+		</uni-card>
+		<!-- <uni-card :border="false" :isFull="true" padding="0" spacing="10" :is-shadow="false">
+			<uni-list :border="false">
+				<uni-list-item showArrow title="绑定微信账号" rightText="" />
+			</uni-list>
+		</uni-card> -->
+	</view>
+</template>
+
+<script>
+	import pageUtil from '../../../common/js/utils/page.js';
+	
+	export default {
+		data() {
+			return {
+				mobile: ''
+			}
+		},
+		onShow() {
+			this.getData();
+		},
+		mounted() {
+			// pageUtil.checkWechatAll();
+		},
+		methods: {
+			getData() {
+				pageUtil.webApi.getMobile({_silent: true})
+				.then(res => {
+					if (res.tel) {
+						this.mobile = '已绑定 ' + pageUtil.helper.other.desensitizePhoneNumber(res.tel);
+					}
+					else {
+						this.mobile = '待绑定';
+					}
+				})
+				.catch(err => {
+					pageUtil.toast(err);
+				});
+			},
+			handlePasswordChange() {
+				pageUtil.gotoPage('prefer/user/changepassword');
+			},
+			handleMobile() {
+				pageUtil.gotoPage('prefer/secure/mobile');
+			},
+			handleBindWechat() {
+				pageUtil.gotoPage('prefer/secure/bindwechat');
+			},
+			handleUnbindWechat() {
+				var msgModal = '是否确定解除微信绑定？';
+				uni.showModal({ content: msgModal, showCancel:true, success: (res) => {
+					if (res.confirm) {
+						pageUtil.webApi.editWechatToUnbind({})
+						.then(res => {
+							pageUtil.toast('已解除微信绑定');
+						})
+						.catch(err => {
+							pageUtil.toast(err);
+						});
+					}
+				} });
+			}
+		}
+	}
+</script>
+
+<style lang="scss" scoped>
+	.content-inner {
+		padding: 20rpx 0rpx;
+		
+		.uni-card {
+			margin-bottom: 20rpx !important;
+			padding: 0rpx 30rpx;
+		}
+		
+		uni-button {
+			margin: 0rpx 20rpx;
+		}
+	}
+</style>

@@ -1,0 +1,53 @@
+<template>
+	<div>
+		<uni-list-chat  v-for="(item,index) in avatarList" :key="item.data_id" :clickable="true" @click="tolist(item)" :avatar-circle="true" :title="item.user_name" :note="tostyd(item)"
+			:time="item.date"></uni-list-chat>
+	</div>
+</template>
+
+<script>
+	import pageUtil from '../../common/js/utils/page.js';
+	export default {
+		data() {
+			return {
+				avatarList: []
+			}
+		},
+		onShow() {
+			pageUtil.webApi.getpublishcommentlikedata().then((res) => {
+				if (res.status_code == 200) {
+					this.avatarList = res.data
+				}
+			})
+		},
+		mounted() {
+			
+		},
+		methods: {
+			tostyd(item){
+				if(item.type=='comment'){
+					return '留言了您发布的'+item.title
+				}else if(item.type=='re_comment'){
+					return '回复了您的留言'+item.title
+				}else if(item.type=='like'){
+					return '点赞了您发布的'+item.title
+				}
+			},
+			tolist(item){
+				let type = '';
+				if(item.data_type==undefined||item.data_type==null){
+					type = 'publish'
+				}else{
+					type = item.data_type
+				}
+				var uname = uni.getStorageSync('ms_username');
+				var uid = uname ? pageUtil.helper.other.base64Encode(uname) : '';
+				pageUtil.gotoPage('publish/detail?data_id=' + item.data_id + '&data_type=' + type + '&uid=' + uid);
+			}
+		}
+	}
+</script>
+
+<style>
+
+</style>

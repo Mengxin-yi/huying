@@ -1,0 +1,416 @@
+{
+	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		{
+			"path": "pages/weiguang/list",
+			"style": {
+				"navigationBarTitleText": "微逛",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/note/list",
+			"style": {
+				"navigationBarTitleText": "事程管理",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/note/add",
+			"style": {
+				"navigationBarTitleText": "新增事程",
+				"navigationBarTextStyle": "white",
+				// #ifdef TRUE
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+								"color": "#fff",
+								"fontSize": "50rpx",
+								"text": "\ue65c",
+								"fontSrc": "static/font/uniicons.ttf"
+							},
+							{
+								"color": "#fff",
+								"fontSize": "50rpx",
+								"text": "\ue65c",
+								"fontSrc": "static/font/uniicons.ttf"
+							}
+						]
+					}
+				}
+				// #endif
+			}
+		},
+		{
+			"path": "pages/note/detail",
+			"style": {
+				"navigationBarTitleText": "提醒查看"
+			}
+		},
+		{
+			"path": "pages/weiguang/detail",
+			"style": {
+				"navigationBarTitleText": "微逛"
+			}
+		},
+		{
+			"path": "pages/prefer/index",
+			"style": {
+				"navigationBarTitleText": "我的",
+				"navigationBarTextStyle": "#000000",
+				"navigationBarBackgroundColor": "#f8f8f8"
+			}
+		},
+		{
+			"path": "pages/prefer/account",
+			"style": {
+				"navigationBarTitleText": "设置"
+			}
+		},
+		{
+			"path": "pages/prefer/contact",
+			"style": {
+				"navigationBarTitleText": "联系我们"
+			}
+		},
+		{
+			"path": "pages/publish/pllist",
+			"style": {
+				"navigationBarTitleText": "评论列表"
+			}
+		},
+		{
+			"path": "pages/prefer/feedback",
+			"style": {
+				"navigationBarTitleText": "帮助与反馈"
+			}
+		},
+		{
+			"path": "pages/prefer/namecard",
+			"style": {
+				"navigationBarTitleText": "公司名片"
+			}
+		},
+		{
+			"path": "pages/prefer/auth",
+			"style": {
+				"navigationBarTitleText": "公司认证"
+			}
+		},
+		{
+			"path": "pages/prefer/authentication",
+			"style": {
+				"navigationBarTitleText": "我的认证"
+			}
+		},
+		{
+			"path": "pages/prefer/authenticationb",
+			"style": {
+				"navigationBarTitleText": "我的认证"
+			}
+		},
+		{
+			"path": "pages/prefer/educationAdd",
+			"style": {
+				"navigationBarTitleText": "新增学历"
+			}
+		},
+		{
+			"path": "pages/prefer/skillAdd",
+			"style": {
+				"navigationBarTitleText": "新增技能"
+			}
+		},
+		{
+			"path": "pages/prefer/privacy",
+			"style": {
+				"navigationBarTitleText": "隐私协议"
+			}
+		},
+		{
+			"path": "pages/prefer/help/helpbid",
+			"style": {
+				"navigationBarTitleText": "了解招标"
+			}
+		},
+		{
+			"path": "pages/prefer/help/helpreserve",
+			"style": {
+				"navigationBarTitleText": "关键词设置"
+			}
+		},
+		{
+			"path": "pages/prefer/help/wechatnotice",
+			"style": {
+				"navigationBarTitleText": "推送设置"
+			}
+		},
+		{
+			"path": "pages/publish/list",
+			"style": {
+				"navigationBarTitleText": "我的发布",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/publish/index",
+			"style": {
+				"navigationBarTitleText": "我的发布",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/publish/add",
+			"style": {
+				"navigationBarTitleText": "新增发布",
+				"usingComponents": {
+					"editor": "dynamicLib://editorLib/editor"
+				}
+			}
+		},
+		{
+			"path": "pages/publish/add2",
+			"style": {
+				"navigationBarTitleText": "新增发布2",
+				"usingComponents": {
+					"editor": "dynamicLib://editorLib/editor"
+				}
+			}
+		},
+		{
+			"path": "pages/prefer/followed",
+			"style": {
+				"navigationBarTitleText": "我的关注"
+			}
+		},
+		{
+			"path": "pages/order/kuozeng",
+			"style": {
+				"navigationBarTitleText": "扩增"
+			}
+		},
+		{
+			"path": "pages/order/list",
+			"style": {
+				"navigationBarTitleText": "订阅列表",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/order/index",
+			"style": {
+				"navigationBarTitleText": "订阅",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/order/editAdd",
+			"style": {
+				"navigationBarTitleText": "订阅添加"
+			}
+		},
+		{
+			"path": "pages/order/add",
+			"style": {
+				"navigationBarTitleText": "订阅添加"
+			}
+		},
+		{
+			"path": "pages/prefer/user/plainstyle/signin",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/prefer/user/plainstyle/signup",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/prefer/user/changepassword",
+			"style": {
+				"navigationBarTitleText": "修改密码"
+			}
+		},
+		{
+			"path": "pages/prefer/vip/index",
+			"style": {
+				"navigationBarTitleText": "会员商城"
+			}
+		},
+		{
+			"path": "pages/prefer/vip/invoice",
+			"style": {
+				"navigationBarTitleText": "申请开票"
+			}
+		},
+		{
+			"path": "pages/prefer/user/profile",
+			"style": {
+				"navigationBarTitleText": "个人资料"
+			}
+		},
+		{
+			"path": "pages/prefer/user/upimguser",
+			"style": {
+				"navigationBarTitleText": "修改图像"
+			}
+		},
+		{
+			"path": "pages/publish/detail",
+			"style": {
+				"navigationBarTitleText": "我的发布"
+			}
+		},
+		{
+			"path": "pages/publish/publish-item",
+			"style": {
+				"navigationBarTitleText": ""
+			}
+		},
+		{
+			"path": "login",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/prefer/user/signin",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/prefer/user/signup",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/prefer/user/editeruser",
+			"style": {
+				"navigationBarTitleText": "修改用户名"
+			}
+		},
+		{
+			"path": "pages/prefer/recover",
+			"style": {
+				"navigationBarTitleText": "找回密码"
+			}
+		},
+		{
+			"path": "pages/prefer/user/recover",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/prefer/help/helpua",
+			"style": {
+				"navigationBarTitleText": "我的参数"
+			}
+		},
+		{
+			"path": "pages/prefer/secure/index",
+			"style": {
+				"navigationBarTitleText": "账号与安全"
+			}
+		},
+		{
+			"path": "pages/prefer/secure/mobile",
+			"style": {
+				"navigationBarTitleText": "修改绑定手机"
+			}
+		},
+		{
+			"path": "pages/prefer/promote/coupon",
+			"style": {
+				"navigationBarTitleText": "我的卡券"
+			}
+		},
+		{
+			"path": "pages/prefer/user/policy",
+			"style": {
+				"navigationBarTitleText": "用户协议"
+			}
+		},
+		{
+			"path": "pages/prefer/vip/bill",
+			"style": {
+				"navigationBarTitleText": "我的订单"
+			}
+		},
+		{
+			"path": "pages/prefer/vip/inside",
+			"style": {
+				"navigationBarTitleText": "我的会员"
+			}
+		},
+		{
+			"path": "pages/prefer/secure/bindwechat",
+			"style": {
+				"navigationBarTitleText": "绑定微信"
+			}
+		},
+		{
+			"path": "pages/kefu/index",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/kefu/userIndex",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationStyle": "custom"
+			}
+		}
+		
+	],
+	"globalStyle": {
+		"navigationStyle": "default",
+		"navigationBarTextStyle": "white",
+		"navigationBarTitleText": "时代呼应",
+		"navigationBarBackgroundColor": "#007aff",
+		"backgroundColor": "#F8F8F8"
+	},
+	"tabBar": {
+		"color": "#7A7E83",
+		"selectedColor": "#007AFF",
+		"borderStyle": "black",
+		"backgroundColor": "#F8F8F8",
+		"list": [{
+			"pagePath": "pages/note/list",
+			"iconPath": "static/icon/home.png",
+			"selectedIconPath": "static/icon/homeHL.png",
+			"text": "今日事"
+		}, {
+			"pagePath": "pages/weiguang/list",
+			"iconPath": "static/icon/news.png",
+			"selectedIconPath": "static/icon/newsHL.png",
+			"text": "微逛"
+		}, {
+			"pagePath": "pages/order/index",
+			"iconPath": "static/icon/book.png",
+			"selectedIconPath": "static/icon/bookHL.png",
+			"text": "订阅"
+		}, {
+			"pagePath": "pages/publish/list",
+			"iconPath": "static/icon/publish2.png",
+			"selectedIconPath": "static/icon/publish2HL.png",
+			"text": "发布"
+		}, {
+			"pagePath": "pages/prefer/index",
+			"iconPath": "static/icon/prefer.png",
+			"selectedIconPath": "static/icon/preferHL.png",
+			"text": "我的"
+		}]
+	}
+}

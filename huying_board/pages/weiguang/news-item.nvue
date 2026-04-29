@@ -1,0 +1,615 @@
+<template>
+	<view style="" class="media-item view" hover-class="media-item-hover"
+		:class="{'read': options.read_status && !options._singleItem}">
+		<view :class="{'generally': true}">
+			<view class="ribbon">{{options.read_status && !options._singleItem ? '已读' : ''}}</view>
+		</view>
+		<view class="view" :style="{flexDirection: 'row-reverse' }" @longpress="handleLongPress" @click="handleClick"
+			@touchstart="handleTouchStart" @touchmove="handleTouchMove" @touchend="handleTouchEnd">
+			<view class="text-section-right" @click="click">
+				<view class="title" v-html="options.title" v-if="options.title">
+				</view>
+				<view class="title" v-if="!options.title">
+					{{options.title}}
+				</view>
+				<!-- <view>
+					{{options.company}}
+				</view> -->
+				<view style="margin-left: -7px;" v-if="options.data_type === 'publish'" v-html="options.company">
+				</view>
+				
+				<!-- <view :class="{'content': true, 'single-line': !fullText}"
+					v-html="!fullText && options.content.split('<br />').length > 1 && options.content.split('<br />')[0].length < 20 ? options.content.split('<br />')[0].substring(0, 20) + '...' : options.content">
+
+				</view> -->
+				 <view 
+				    :class="{'content': true, 'single-line': !fullText}"
+				    v-html="displayContent">
+				  </view>
+				<view
+					v-if="options.data_type === 'publish' && (options.content.length > 20 || options.content.split('<br />').length > 1)"
+					class="button" @click.stop="handleFulltext">
+					{{fullText ? '收起' : '全文'}}
+				</view>
+				<view class="pictures" v-if="options.image_list && options.image_list.length > 0">
+					<uni-grid :column="3" :highlight="true" border-color="transparent">
+						<uni-grid-item v-if="options.image_list" :src="source.url"
+							v-for="(source, i) in options.image_list" :key="i">
+							<view class="grid-item-box" style="background-color: #fff;">
+								<image mode="fit" :src="source.url" @click.native.stop="handleImage(i, source)"
+									lazy-load="true"></image>
+							</view>
+						</uni-grid-item>
+					</uni-grid>
+				</view>
+			</view>
+			<view class="image-section flex-row image-section-left" :style="{flexDirection: 'row' }" @click="click">
+				<image class="avatar" :src="options.image_url ? options.image_url : imgStatic" lazy-load="true"></image>
+				<!-- 				<image v-if="options.data_type !== 'publish' || options._avatar === undefined" class="avatar" :src="options && options.image_url && options.image_url.length > 0 ? options.image_url : imgStatic"></image>
+				<image v-if="options.data_type === 'publish' && options._avatar" class="avatar" :src="options._avatar" @error="handleAvatarError"></image> -->
+			</view>
+		</view>
+		<view class="media-foot flex-row" style="flex-direction: row;" @longpress="handleLongPress" @click="handleClick"
+			@touchstart="handleTouchStart" @touchmove="handleTouchMove" @touchend="handleTouchEnd">
+			<view class="media-info flex-row" style="flex-direction: row;">
+				<text :style="{marginRight:(options.company !== ''?'10px':'0px')}" class="info-text single-line"
+					v-if="options.data_type !== 'publish'">{{options.company}}</text>
+				<text style="" class="info-text">{{options.datetime}}</text>
+				<text class="info-text single-line" v-if="options.data_type === 'publish'">{{options.location}}</text>
+			</view>
+			<view class="action">
+				<view :class="{'info-text': true, 'uni-icon': true, 'read': options.read_status}">
+					{{options.read_status ? '&#xe568;' : '&#xe824;'}} <span class="cus">{{options.read_num}}</span>
+				</view>
+				<text class="info-text uni-icon" @click.stop="handleCommentList">&#xe263; {{options.comment_num}}</text>
+				<view :class="{'info-text': true, 'uni-icon': true, 'liked': options.like_status}"
+					@click.stop="handleLike">
+					<piaoyi-like_effect :enable="!options.like_status">{{options.like_status ? '&#xe83d;' : '&#xe83f;'}}
+						<span>{{options.like_num}}</span></piaoyi-like_effect>
+				</view>
+				<!-- AndrewYy: 增加了一个分享点击数量，图标可能还需要修改 -->
+				<view class="info-text uni-icon">&#xe691;{{options.share_click_num}}</view>
+			</view>
+		</view>
+		<view class="collapsed-section" v-if="commentListVisible" style="font-size:12px;">
+			<view class="comment-list">
+				<view class="comment-list-item" @click.native.stop="handleCommentAt(item)"
+					v-for="(item, index) in options.comment_list" :key="index">
+					{{ item.author }}{{ item.reply_at && item.reply_at.length > 0 ? ' 回复 ' + item.reply_at : '' }}:
+					{{ item.content }}
+				</view>
+			</view>
+			<view class="action">
+				<view class="" v-if="isAt">{{isAttext}}</view>
+				<input class="uni-input" placeholder="输入留言内容" v-model="options.comment_new" @click.stop="" />
+				<view class="button" @click.stop="handleCommentBegin">留言</view>
+			</view>
+		</view>
+		<!-- <view class="media-item-line" style="position: absolute;"></view> -->
+	</view>
+</template>
+
+<script>
+	import pageUtil from '../../common/js/utils/page.js';
+	import imgStatic from '../../static/image/dash.png';
+
+	export default {
+		props: {
+			options: {
+				type: Object,
+				default: function(e) {
+					return {}
+				}
+			}
+		},
+		data() {
+			return {
+				isAt: false,
+				isAttext: '',
+				commentListVisible: false,
+				isLongPress: false,
+				commentAt: {},
+				imgStatic,
+				fullText: false,
+				needFulltext: false,
+				imgAvatar: imgStatic,
+				defaultimage: '',
+				timeTouchStart: -1,
+				userTryToMove: false,
+				userAlreadyLongPressed: false,
+				userAlreadyEndTouch: false,
+				pageElement: pageUtil.pageElement()
+			}
+		},
+		methods: {
+			click() {
+				if (this.isLongPress) {
+					return;
+				}
+				this.$emit('clickTrigger');
+			},
+			handleCommentList() {
+				// console.log('e',e)
+				// if(e.user_id==JSON.parse(uni.getStorageSync('profile'))['id']){
+				// 	pageUtil.toast('不能留言自己');
+				// 	return
+				// }
+				// AndrewYy: 修改权限判断功能
+				if (pageUtil.isFirstUse() || !this.pageElement.weiguang.viewComment) {
+					return;
+				}
+				// if (!pageUtil.applyForPermission('微逛查看评论', pageUtil.mapping.mapSystemTip('无权限'))) {
+				// 	return;
+				// }
+				if (this.commentListVisible) {
+					this.commentListVisible = !this.commentListVisible;
+				} else {
+					pageUtil.webApi.getWeiguangCommentList({
+							data_id: this.options.data_id,
+							data_type: this.options.data_type
+						})
+						.then(res => {
+							this.options.comment_list = res.datas.map(m => {
+								var n = pageUtil.mapping.mapWeiguangComment(m);
+								return n;
+							});
+							this.commentListVisible = !this.commentListVisible;
+						})
+						.catch(err => {
+							pageUtil.toast(err);
+						});
+				}
+				// this.$emit('close');
+			},
+			handleCommentBegin() {
+				// console.log('提交评论',this.commentAt,this.options)
+				// return
+				// AndrewYy: 修改权限判断
+				if (pageUtil.isFirstUse() || !this.pageElement.weiguang.addComment) {
+					return;
+				}
+				if (this.options.comment_new && this.options.comment_new.length) {
+					pageUtil.webApi.addWeiguangComment({
+							data_id: this.options.data_id,
+							data_type: this.options.data_type,
+							content: this.options.comment_new,
+							re_user_id: this.commentAt.re_user_id ? this.commentAt.re_user_id : 0
+						})
+						.then(res => {
+							pageUtil.toast('留言成功');
+							this.options.comment_new = '';
+							pageUtil.webApi.getWeiguangCommentList({
+									data_id: this.options.data_id,
+									data_type: this.options.data_type
+								})
+								.then(res => {
+									this.options.comment_list = res.datas.map(m => {
+										var n = pageUtil.mapping.mapWeiguangComment(m);
+										return n;
+									});
+									this.options.comment_num = this.options.comment_list.length;
+								})
+								.catch(err => {
+									pageUtil.toast(err);
+								});
+
+							this.isAt = false;
+							this.commentAt.re_user_id = 0;
+						})
+						.catch(err => {
+							pageUtil.toast(err);
+						});
+				}
+			},
+			handleCommentAt(obj) {
+				if (obj.user_id == JSON.parse(uni.getStorageSync('profile'))['id']) {
+					pageUtil.toast('不能留言自己');
+					return
+				}
+				this.options.comment_new = '';
+				// console.log('评论',pageUtil.user.getUsername(),obj)
+				//评论权限
+				if (!this.pageElement.weiguang.commentAt) {
+					return;
+				}
+				this.isAt = true;
+				var user = pageUtil.user.getUsername();
+				if (!pageUtil.helper.other.isEmpty(user) && user !== obj.author) {
+					// this.options.comment_new = '回复 ' + obj.author + ': ';
+					this.isAttext = '回复 ' + obj.author + ': ';
+					this.commentAt = obj;
+					this.commentAt.re_user_id = obj.user_id;
+				}
+			},
+			handleImage(index, obj) {
+				var arr = this.options.image_list.map(m => {
+					return m.url;
+				});
+				uni.previewImage({
+					urls: arr, //需要预览的图片http链接列表，多张的时候，url直接写在后面就行了
+					current: index, // 当前显示图片的http链接，默认是第一个
+					success: function(res) {
+						console.log(res);
+					},
+					fail: function(res) {
+						console.log(res);
+					},
+					complete: function(res) {
+						console.log(res);
+					},
+				});
+			},
+			handleLongPress() {
+				// 长按事件触发时的处理逻辑
+				// console.log("触发了长按事件");
+				// this.$emit('longpressTrigger');
+				// this.isLongPress = true; // 标记为长按事件
+			},
+			handleClick() {
+				// 点击事件触发时的处理逻辑
+				if (!this.isLongPress) {
+					// 如果不是长按事件，则执行点击事件的逻辑
+					console.log("触发了点击事件");
+				}
+			},
+			handleTouchStart(e) {
+				// console.log(e.touches);
+				this.timeTouchStart = new Date().getTime();
+				this.userTryToMove = false;
+				this.userAlreadyLongPressed = false;
+				this.userAlreadyEndTouch = false;
+				setTimeout(() => {
+					if (!this.userAlreadyEndTouch && !this.userTryToMove && !this.userAlreadyLongPressed) {
+						this.userAlreadyLongPressed = true;
+						this.$emit('longpressTrigger');
+					}
+				}, 1500);
+			},
+			handleTouchMove(e) {
+				// console.log(e.touches);
+				var nowadays = new Date().getTime();
+				var diff = nowadays - this.timeTouchStart;
+				if (diff < 2000 && !this.userAlreadyLongPressed) {
+					this.userTryToMove = true;
+				}
+			},
+			handleTouchEnd(e) {
+				// console.log(e.touches);
+				this.userAlreadyEndTouch = true;
+
+				// // 触摸结束时的处理逻辑
+				// setTimeout(() => {
+				// 	this.isLongPress = false; // 重置长按事件标记
+				// }, 200); // 设置延时以避免立即重置长按标记
+			},
+			handleLike() {
+				// AndrewYy: 修改权限判断
+				if (pageUtil.isFirstUse() || !this.pageElement.weiguang.like) {
+					return;
+				}
+				// if (pageUtil.isFirstUse() || !pageUtil.applyForPermission('微逛点赞', pageUtil.mapping.mapSystemTip('无权限'))) {
+				// 	return;
+				// }
+				if (!this.options.like_status) {
+					pageUtil.webApi.addWeiguangLike({
+							data_id: this.options.data_id,
+							data_type: this.options.data_type
+						})
+						.then(res => {
+							this.options.like_status = true;
+							this.options.like_num += 1;
+						})
+						.catch(err => {
+							pageUtil.toast(err);
+						});
+				}
+			},
+			handleFulltext() {
+				this.fullText = !this.fullText;
+			},
+			getContentBrief() {
+				return this.options.content;
+			},
+			handleAvatarError() {
+				this.options._avatar = undefined;
+			}
+		},
+		computed: {
+			displayContent() {
+				const content = this.options?.content || ''
+
+				if (!this.fullText && content) {
+					const parts = content.split('<br />')
+					if (parts.length > 1 && parts[0].length < 20) {
+						return parts[0].substring(0, 20) + '...'
+					}
+				}
+
+				return content
+			}
+		},
+	}
+</script>
+
+<style lang="scss" scoped>
+	.view {
+		display: flex;
+		flex-direction: column;
+		box-sizing: border-box;
+	}
+
+
+	.collapsed-section {
+		padding: 20rpx 20rpx 20rpx 60rpx;
+		color: #555555;
+
+		&::before {
+			font-family: uniicons;
+			content: '\e263';
+			position: absolute;
+			left: 12rpx;
+			top: 45rpx;
+			color: #bbb;
+			-webkit-transform: translateY(-50%);
+			transform: translateY(-50%);
+		}
+
+		.comment-list-item {
+			justify-content: center;
+			min-height: 50rpx;
+			// border-bottom: 1rpx solid var(--inner-line-color);
+		}
+
+		.action {
+			border: 1rpx solid var(--info-color);
+			border-radius: 0rpx;
+			padding: 0rpx 10rpx 0rpx 0rpx;
+			overflow: hidden;
+
+			.uni-input {
+				padding: 0rpx 10rpx;
+				text-align: left;
+			}
+
+			.button {
+				color: var(--primary-color);
+			}
+		}
+	}
+
+	.media-item {
+		position: relative;
+		flex: 1;
+		flex-direction: column;
+		// border-bottom-width: 8rpx;
+		// border-bottom-style: solid;
+		// border-bottom-color: #e5e5e5;
+		padding: 5px 10px 5px 10px;
+		overflow: hidden;
+
+		&.read {
+			// background-color: #bbbbbbb5;
+			//     opacity: 0.6;
+		}
+
+		.generally {
+			background: var(--primary-color);
+			overflow: hidden;
+			white-space: nowrap;
+			position: absolute;
+			left: -108rpx;
+			top: -30rpx;
+			-webkit-transform: rotate(-47deg);
+			-moz-transform: rotate(-47deg);
+			-ms-transform: rotate(-47deg);
+			-o-transform: rotate(-47deg);
+			transform: rotate(-47deg);
+			opacity: 0.95;
+			display: none;
+
+			&.read {
+				background-color: var(--success-color);
+				display: inherit;
+			}
+
+			.ribbon {
+				color: #fff;
+				display: block;
+				font-size: 20rpx;
+				padding: 40rpx 100rpx 4rpx 96rpx;
+				text-align: center;
+				text-decoration: none;
+			}
+		}
+
+		&.read {
+			.generally {
+				display: inherit;
+
+				.ribbon {
+					color: #fff;
+					// background-color: var(--success-color);
+					background-color: #999999;
+				}
+			}
+		}
+	}
+
+	.text-section-right {
+		text-overflow: ellipsis;
+		font-size: 24rpx;
+		color: var(--text-1st-color);
+		// color: #555555;
+		flex: 1;
+		margin-top: 6rpx;
+		line-height: 40rpx;
+
+		.title {
+			lines: 3;
+			font-size: 30rpx;
+			// color: var(--text-1st-color);
+			color: #000;
+			// font-weight:600;
+			// color: #555555;
+			// flex-direction: row;
+			// word-wrap: none;
+			// white-space: nowrap;
+		}
+
+		.content {
+			width: calc(100vw - 220rpx);
+			display: inline-block;
+			// color: var(--text-2nd-color);
+			color: #666;
+			margin-top: 10px;
+			font-size: 24rpx;
+			// color: var(--info-color);
+			max-height: inherit;
+
+			&.single-line {
+				max-height: 40rpx;
+			}
+		}
+
+		.pictures {
+			.grid-item-box {
+				border: none;
+				position: relative;
+				padding: 10rpx;
+
+				uni-image {
+					position: absolute;
+					width: calc(100% - 20rpx);
+					height: auto;
+					aspect-ratio: 1/1;
+				}
+
+				img {
+					// height: 100%;
+				}
+			}
+		}
+
+		.button {
+			border-bottom: 1rpx solid var(--custom-pop-action-color);
+			display: inline-block;
+			width: 50rpx;
+			color: var(--custom-pop-action-color);
+		}
+	}
+
+	.image-section-left {
+		margin-top: 0rpx;
+		margin-right: 10rpx;
+		width: 120rpx;
+		// height: 146rpx;
+	}
+
+	.avatar {
+		width: 100rpx;
+		height: 100rpx;
+		border-radius: 50rpx;
+		border: 1rpx solid var(--inner-line-color);
+	}
+
+	.media-info {
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.info-text {
+		display: inline-block;
+		margin-right: 20rpx;
+		color: #999999;
+		font-size: 24rpx;
+
+		&.single-line {
+			height: 32rpx;
+			display: flex;
+			align-items: center;
+		}
+
+		&.single-line> :deep(span) {
+			max-width: calc(100vw - 500rpx);
+			display: inline-block;
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+		}
+
+		&.read {
+			color: var(--custom-pop-action-color);
+
+			span {
+				color: #999999;
+			}
+		}
+
+		&.liked {
+			color: var(--danger-color);
+
+			span {
+				color: #999999 !important;
+			}
+		}
+
+		:deep(.piaoyi-btns) {
+			display: inline-block;
+			width: auto;
+			height: auto;
+			line-height: inherit;
+		}
+
+		:deep(.piaoyi-btns) .piaoyi-btn {
+			display: inline-block;
+			position: initial;
+		}
+	}
+
+	.media-foot {
+		margin-top: 25rpx;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.action {
+		position: relative;
+		align-items: center;
+		flex-direction: row;
+		line-height: 30rpx;
+		border-style: solid;
+		border-color: #aaaaaa;
+		border-radius: 4px;
+		justify-content: center;
+		text-align: center;
+
+		.info-text:last-child {
+			margin-right: 0rpx;
+		}
+	}
+
+	.close-l {
+		position: absolute;
+		width: 18rpx;
+		height: 1rpx;
+		background-color: #aaaaaa;
+	}
+
+	.close-h {
+		transform: rotate(45deg);
+	}
+
+	.close-v {
+		transform: rotate(-45deg);
+	}
+
+	.media-item-line {
+		position: absolute;
+		left: 30rpx;
+		right: 30rpx;
+		bottom: 0;
+		height: 1rpx;
+		background-color: var(--inner-line-color);
+	}
+</style>

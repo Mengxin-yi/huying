@@ -1,0 +1,64 @@
+/* 基础样式重置 */
+
+page {
+	background-color: #F5F6FA;
+	min-height: 100vh;
+	font-size: 28rpx;
+	line-height: 1.6;
+	color: #333333;
+}
+
+/* 安全区域 */
+.safe-area-bottom {
+	padding-bottom: constant(safe-area-inset-bottom);
+	padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* 文本溢出省略 */
+.text-ellipsis {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.text-ellipsis-2 {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	overflow: hidden;
+}
+
+.text-ellipsis-3 {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 3;
+	overflow: hidden;
+}
+
+/* Flex 布局 */
+.flex-row {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.flex-col {
+	display: flex;
+	flex-direction: column;
+}
+
+.flex-between {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.flex-center {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.flex-1 {
+	flex: 1;
+}

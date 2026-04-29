@@ -1,0 +1,27 @@
+<template>
+	<view>
+		
+	</view>
+</template>
+
+<script>
+	import pageUtil from '../../common/js/utils/page.js';
+	
+	export default {
+		data() {
+			return {
+				
+			}
+		},
+		mounted() {
+			pageUtil.checkWechatAll();
+		},
+		methods: {
+			
+		}
+	}
+</script>
+
+<style>
+
+</style>

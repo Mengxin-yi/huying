@@ -1,0 +1,86 @@
+{
+  "id": "ydl-col-picker",
+  "displayName": "ydl-col-picker",
+  "version": "1.0.2",
+  "description": "支持搜索功能的单选多选列选择器。",
+  "keywords": [
+    "ydl-col-picker",
+    "column-picker",
+    "search",
+    "picker"
+],
+  "repository": "https://github.com/yd1024/uniapp-colpicker",
+  "engines": {
+    "HBuilderX": "^3.1.0"
+  },
+"dcloudext": {
+    "type": "component-vue",
+    "sale": {
+      "regular": {
+        "price": "0.00"
+      },
+      "sourcecode": {
+        "price": "0.00"
+      }
+    },
+    "contact": {
+      "qq": "1469854373"
+    },
+    "declaration": {
+      "ads": "无",
+      "data": "插件不采集任何数据",
+      "permissions": "无"
+    },
+    "npmurl": ""
+  },
+  "uni_modules": {
+    "dependencies": ["uni-scss", "uni-transition", "uni-icons"],
+    "encrypt": [],
+    "platforms": {
+      "cloud": {
+        "tcb": "y",
+        "aliyun": "y",
+        "alipay": "y"
+      },
+      "client": {
+        "Vue": {
+          "vue2": "y",
+          "vue3": "y"
+        },
+        "App": {
+          "app-vue": "y",
+          "app-nvue": "u",
+          "app-uvue": "u"
+        },
+        "H5-mobile": {
+          "Safari": "y",
+          "Android Browser": "y",
+          "微信浏览器(Android)": "y",
+          "QQ浏览器(Android)": "y"
+        },
+        "H5-pc": {
+          "Chrome": "y",
+          "IE": "u",
+          "Edge": "y",
+          "Firefox": "y",
+          "Safari": "y"
+        },
+        "小程序": {
+          "微信": "y",
+          "阿里": "y",
+          "百度": "y",
+          "字节跳动": "y",
+          "QQ": "y",
+          "钉钉": "y",
+          "快手": "y",
+          "飞书": "y",
+          "京东": "y"
+        },
+        "快应用": {
+          "华为": "u",
+          "联盟": "u"
+        }
+      }
+    }
+  }
+}

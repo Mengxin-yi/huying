@@ -1,0 +1,123 @@
+<template>
+	<view class="content-inner">
+		<view class="district">
+			<view class="row title">登 录</view>
+			<view class="row uni-icon">
+				&#xe101;
+				<input v-model="form.username" placeholder="请输入用户名" />
+			</view>
+			<view class="row uni-icon password">
+				&#xe506;
+				<input v-model="form.password" placeholder="请输入密码" :password="!showPassword" />
+				<text class="uni-icon" :class="{'uni-eye-active': showPassword}" @click="changePassword">{{ showPassword ? '&#xe568;' : '&#xe824;' }}</text>
+			</view>
+			<view class="row">
+				<button type="primary" @click="handleSignIn">登录</button>
+				<button type="primary" @click="handleSignUp">注册</button>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script>
+	import pageUtil from '../../../../common/js/utils/page.js';
+	
+	export default {
+		data() {
+			return {
+				form: {
+					username: '',
+					password: ''
+					// username: 'YouYe',
+					// password: '12345678'
+				},
+				showPassword: false
+			}
+		},
+		onLoad(e){
+			// uni.hideTabBar();
+			// pageUtil.initRouteGuard();
+		},
+		methods: {
+			changePassword() {
+				this.showPassword = !this.showPassword;
+			},
+			handleSignIn() {
+				var rule = [
+				    {name:"username", checkType : "notnull", checkRule:"", errorMsg:"请输入用户名"},
+					{name:"password", checkType : "notnull", checkRule:"", errorMsg:"请输入密码"}
+				];
+				pageUtil.submitForm(this.form, rule)
+				.then(() => {
+					pageUtil.webApi.login(this.form)
+					.then(res => {
+						uni.setStorageSync('ms_username', this.form.username);
+						pageUtil.markState('prefer/user/signin', Date.now());
+						pageUtil.gotoPage('weiguang/list');
+					})
+					.catch(err => {
+						pageUtil.toast(err);
+					});
+				});
+			},
+			handleSignUp() {
+				pageUtil.gotoPage('prefer/user/signup');
+			}
+		}
+	}
+</script>
+
+<style lang="scss" scoped>
+	.content-inner {
+		padding: 0rpx 0rpx;
+		background: url('../../../../static/image/loginbg.jpg');
+		background-size: 100% 100%;
+		width: 100vw;
+		height: 100vh;
+		
+		.district {
+			margin: 25vh 40rpx auto 40rpx;
+			background-color: #fff;
+			padding: 40rpx 40rpx;
+			border-radius: 20rpx;
+			align-items: center;
+			
+			.row {
+				flex-direction: row;
+				min-height: 100rpx;
+				align-items: center;
+				font-size: 40rpx;
+				
+				&.uni-icon {
+					justify-content: flex-start;
+					width: 100%;
+				}
+				uni-button {
+					height: 80rpx;
+					padding: 0rpx 60rpx;
+					
+					&:last-child {
+						margin-left: 40rpx;
+					}
+				}
+				uni-input {
+					margin-left: 20rpx;
+					flex: 1;
+					border-bottom: 1px solid var(--inner-line-color);
+					margin-right: 68rpx;
+					height: 80rpx;
+				}
+				&.password {
+					margin-bottom: 20rpx;
+				}
+				&.password uni-input {
+					margin-right: 20rpx;
+				}
+			}
+			.title {
+				font-size: 50rpx;
+				font-weight: bold;
+			}			
+		}
+	}
+</style>

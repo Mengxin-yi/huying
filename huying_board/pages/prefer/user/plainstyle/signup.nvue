@@ -1,0 +1,194 @@
+<template>
+	<view class="content-inner">
+		<view class="district">
+			<view class="row title">注 册</view>
+			<view class="row uni-icon">
+				&#xe101;
+				<input v-model="form.username" placeholder="请输入用户名" />
+			</view>
+			<view class="row uni-icon uni35">
+				&#xe6a7;
+				<uni-data-checkbox v-model="form.user_type" :localdata="data_type_list"></uni-data-checkbox>
+				<!-- <picker @change="bindPickerChange" v-model="form.user_type" :range="array" range-key="name">
+					<view class="uni-input">{{array[index].name}}</view>
+				</picker> -->
+			</view>
+			<view class="row uni-icon">
+				&#xe200;
+				<input v-model="form.tel" placeholder="请输入手机号码"  />
+			</view>
+			<view class="row uni-icon password">
+				&#xe506;
+				<input v-model="form.password" placeholder="请输入密码" :password="!showPassword" />
+				<text class="uni-icon" :class="{'uni-eye-active': showPassword}" @click="changePassword">{{ showPassword ? '&#xe568;' : '&#xe824;' }}</text>
+			</view>
+			<view class="row uni-icon password confirm">
+				&#xe506;
+				<input v-model="form.confirmPassword" placeholder="请再次输入密码" :password="!showPasswordConfirm" />
+				<text class="uni-icon" :class="{'uni-eye-active': showPasswordConfirm}" @click="changePasswordConfirm">{{ showPasswordConfirm ? '&#xe568;' : '&#xe824;' }}</text>
+			</view>
+			<view class="row">
+				<button type="default" @click="handleSignIn">取消</button>
+				<button type="primary" @click="handleSignUp">注册</button>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script>
+	import pageUtil from '../../../../common/js/utils/page.js';
+	
+	export default {
+		data() {
+			return {
+				form: {
+					user_type: '个人用户',
+					username: '',
+					password: '',
+					confirmPassword: ''
+					// username: 'YouYe',
+					// password: '12345678',
+					// confirmPassword: '12345678'
+				},
+				showPassword: false,
+				showPasswordConfirm: false,
+				index: 0,
+				data_type_list: [
+					{ text: '个人用户', value: '个人用户' },
+					{ text: '单位用户', value: '单位用户' }
+				],
+				array: [{name:'个人用户'}, {name: '单位用户'}] // {name: '企事业单位用户'}, {name: '政府组织'}, {name: '公益组织'}
+			}
+		},
+		onLoad(e){
+			// uni.hideTabBar();
+		},
+		methods: {
+			changePassword() {
+				this.showPassword = !this.showPassword;
+			},
+			changePasswordConfirm() {
+				this.showPasswordConfirm = !this.showPasswordConfirm;
+			},
+			handleSignIn() {
+				// pageUtil.goBack();
+				pageUtil.gotoPage('prefer/user/signin');
+			},
+			handleSignUp() {
+				// var rule = [
+				//     {name:"nickname", checkType : "string", checkRule:"1,3",  errorMsg:"姓名应为1-3个字符"},
+				//     {name:"gender", checkType : "in", checkRule:"男,女",  errorMsg:"请选择性别"},
+				//     {name:"loves", checkType : "notnull", checkRule:"",  errorMsg:"请选择爱好"}
+				// ];
+				var rule = [
+				    {name:"username", checkType : "notnull", checkRule:"", errorMsg:"请输入用户名"},
+					{name:"password", checkType : "notnull", checkRule:"", errorMsg:"请输入密码"},
+					{name:"confirmPassword", checkType : "notnull", checkRule:"", errorMsg:"请输入确认密码"}
+				];
+				pageUtil.submitForm(this.form, rule)
+				.then(() => {
+					if (this.form.password !== this.form.confirmPassword) {
+						pageUtil.toast('两次输入的密码不一致');
+					}
+					else {
+						pageUtil.webApi.register(this.form)
+						.then(res => {
+							pageUtil.toast('注册成功');
+							uni.setStorageSync('ms_username', this.form.username);
+							// pageUtil.toast(res.has_url); always 0
+							if (res.url.length === 0) {
+								setTimeout(() => {
+									pageUtil.gotoPage('weiguang/list');
+								}, 1500);
+							}
+							else {
+								// #ifdef H5
+								window.location.href = res.url;
+								// #endif
+								// #ifdef APP-PLUS
+								plus.runtime.openURL(res.url);
+								// plus.runtime.openURL(`http://${res.url}`)//需要拼接
+								// #endif
+								// pageUtil.gotoPage('note/list');
+							}
+						})
+						.catch(err => {
+							pageUtil.toast(err);
+						});
+					}
+				});
+			},
+			bindPickerChange: function(e) {
+				// console.log('picker发送选择改变，携带值为：' + e.detail.value)
+				this.index = e.detail.value
+				this.form.user_type = this.array[this.index].name;
+			}
+		}
+	}
+</script>
+
+<style lang="scss" scoped>
+	.content-inner {
+		padding: 0rpx 0rpx;
+		background: url('../../../../static/image/loginbg.jpg');
+		background-size: 100% 100%;
+		width: 100vw;
+		height: 100vh;
+		
+		.district {
+			margin: 25vh 40rpx auto 40rpx;
+			background-color: #fff;
+			padding: 40rpx 40rpx;
+			border-radius: 20rpx;
+			align-items: center;
+			
+			.row {
+				flex-direction: row;
+				min-height: 100rpx;
+				align-items: center;
+				font-size: 40rpx;
+				
+				.uni-input {
+					font-size: 32rpx;
+					padding: 0rpx 0rpx 0rpx 20rpx;
+				}
+				&.uni-icon {
+					justify-content: flex-start;
+					width: 100%;
+				}
+				uni-button {
+					height: 80rpx;
+					padding: 0rpx 60rpx;
+					
+					&:last-child {
+						margin-left: 40rpx;
+					}
+				}
+				uni-input {
+					margin-left: 20rpx;
+					flex: 1;
+					border-bottom: 1px solid var(--inner-line-color);
+					margin-right: 68rpx;
+					height: 80rpx;
+				}
+				&.password.confirm {
+					margin-bottom: 20rpx;
+				}
+				&.password uni-input {
+					margin-right: 20rpx;
+				}
+				.uni-data-checklist {
+					margin-left: 20rpx;
+					
+					:deep(.checklist-text) {
+						font-size: 32rpx;						
+					}
+				}
+			}
+			.title {
+				font-size: 50rpx;
+				font-weight: bold;
+			}			
+		}
+	}
+</style>
