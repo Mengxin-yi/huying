@@ -1,5 +1,126 @@
 <template>
-	<view class="page"></view>
+	<view class="page">
+		<!-- 右上角编辑/取消按钮 -->
+		<view class="edit-btn" @click="toggleEdit">
+			{{ isEditing ? '取消' : '编辑' }}
+		</view>
+
+		<!-- 未登录提示 -->
+		<view v-if="!userStore.isLoggedIn && !loading" class="empty-state">
+			<PageEmpty text="请先登录后查看个人资料" mode="permission" />
+			<view class="empty-state__action">
+				<button class="empty-state__btn" @click="goLogin">去登录</button>
+			</view>
+		</view>
+
+		<!-- 加载中 -->
+		<PageLoading v-else-if="loading" />
+
+		<!-- 主内容 -->
+		<scroll-view v-else scroll-y class="profile-scroll" :class="{ 'profile-scroll--editing': isEditing }">
+			<!-- 头像卡片 -->
+			<view class="avatar-card">
+				<view class="avatar-card__img-wrap" @click="onAvatarClick">
+					<image v-if="displayAvatar" class="avatar-card__img" :src="displayAvatar" mode="aspectFill" />
+					<view v-else class="avatar-card__img avatar-card__img--default">
+						<u-icon name="account" size="32" color="#ccc"></u-icon>
+					</view>
+					<view v-if="isEditing" class="avatar-card__camera">
+						<u-icon name="camera" size="12" color="#fff"></u-icon>
+					</view>
+				</view>
+				<view class="avatar-card__name">
+					<template v-if="!isEditing">{{ profile.surname || userStore.username || '未设置' }}</template>
+					<input v-else class="avatar-card__name-input" v-model="profile.surname" placeholder="请输入姓名" />
+				</view>
+				<text class="avatar-card__account">@{{ profile.username || '' }}</text>
+				<view class="avatar-card__tags">
+					<text class="avatar-card__type">{{ userTypeLabel }}</text>
+					<text v-if="userStore.isVip" class="avatar-card__vip">{{ userStore.vipLabel }}</text>
+				</view>
+			</view>
+
+			<!-- 个人信息卡片 -->
+			<view class="info-card">
+				<view class="info-card__row">
+					<text class="info-card__label">昵称</text>
+					<view class="info-card__value">
+						<template v-if="!isEditing">{{ profile.nickname || '未设置' }}</template>
+						<input v-else class="info-card__input" v-model="profile.nickname" placeholder="请输入昵称" />
+					</view>
+					<text v-if="!isEditing" class="info-card__arrow">›</text>
+				</view>
+				<view class="info-card__row" @click="onGenderClick">
+					<text class="info-card__label">性别</text>
+					<view class="info-card__value">
+						<text>{{ genderLabel }}</text>
+					</view>
+					<text v-if="!isEditing" class="info-card__arrow">›</text>
+				</view>
+				<view class="info-card__row info-card__row--top">
+					<text class="info-card__label">简介</text>
+					<view class="info-card__value info-card__value--flex-end">
+						<template v-if="!isEditing">
+							<text class="info-card__text-ellipsis">{{ profile.intro || '未设置' }}</text>
+						</template>
+						<textarea v-else class="info-card__textarea" v-model="profile.intro" placeholder="请输入简介"
+							maxlength="200" :auto-height="true" />
+					</view>
+					<text v-if="!isEditing" class="info-card__arrow">›</text>
+				</view>
+				<view v-if="isEditing" class="info-card__counter">
+					<text>{{ (profile.intro || '').length }}/200</text>
+				</view>
+				<view class="info-card__row">
+					<text class="info-card__label">城市</text>
+					<view class="info-card__value">
+						<template v-if="!isEditing">
+							<text>{{ cityLabel || '未设置' }}</text>
+						</template>
+						<template v-else>
+							<picker mode="region" @change="onCityChange">
+								<text :class="{ 'info-card__value--placeholder': !cityLabel }">{{ cityLabel || '请选择城市' }}</text>
+							</picker>
+						</template>
+					</view>
+					<text v-if="!isEditing" class="info-card__arrow">›</text>
+				</view>
+			</view>
+
+			<!-- 联系与账号卡片 -->
+			<view class="info-card">
+				<view class="info-card__row">
+					<text class="info-card__label">邮箱</text>
+					<view class="info-card__value">
+						<template v-if="!isEditing">{{ profile.email || '未设置' }}</template>
+						<input v-else class="info-card__input" v-model="profile.email" placeholder="请输入邮箱" />
+					</view>
+					<text v-if="!isEditing" class="info-card__arrow">›</text>
+				</view>
+				<view class="info-card__row">
+					<text class="info-card__label">用户名</text>
+					<view class="info-card__value info-card__value--readonly">{{ profile.username || '' }}</view>
+				</view>
+			</view>
+
+			<!-- 会员信息卡片 -->
+			<view class="info-card">
+				<view class="info-card__row">
+					<text class="info-card__label">积分</text>
+					<view class="info-card__value info-card__value--highlight">{{ profile.user_score || '0' }}</view>
+				</view>
+				<view class="info-card__row">
+					<text class="info-card__label">等级</text>
+					<view class="info-card__value info-card__value--readonly">{{ profile.user_level || userStore.vipLabel || '普通用户' }}</view>
+				</view>
+			</view>
+		</scroll-view>
+
+		<!-- 保存按钮（编辑模式） -->
+		<view v-if="isEditing" class="save-bar">
+			<button class="save-bar__btn" @click="handleSave">保存</button>
+		</view>
+	</view>
 </template>
 
 <script setup>
@@ -144,8 +265,6 @@ const handleSave = async () => {
 	}
 
 	try {
-		uni.showLoading({ title: '保存中...' })
-
 		// 构造参数
 		const data = {
 			nickname: profile.value.nickname,
@@ -172,18 +291,13 @@ const handleSave = async () => {
 		// 更新本地 store
 		userStore.updateUserInfo(profile.value)
 
-		uni.hideLoading()
 		uni.showToast({ title: '保存成功', icon: 'success' })
 
 		// 退出编辑模式
 		tempAvatar.value = ''
 		originalProfile.value = null
 		isEditing.value = false
-
-		// 刷新数据
-		await loadProfile()
 	} catch (e) {
-		uni.hideLoading()
 		uni.showToast({ title: '保存失败，请重试', icon: 'none' })
 	}
 }
