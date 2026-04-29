@@ -7,19 +7,26 @@ import { createPersistedState } from 'pinia-plugin-persistedstate'
 
 const pinia = createPinia()
 
-// 使用 uni-app 存储适配器（兼容 H5、小程序、App 三端）
-pinia.use(createPersistedState({
-	storage: {
-		getItem: (key) => {
-			return uni.getStorageSync(key)
-		},
-		setItem: (key, value) => {
-			uni.setStorageSync(key, value)
-		},
-		removeItem: (key) => {
-			uni.removeStorageSync(key)
-		}
+// #ifdef H5
+// H5 端直接用 localStorage，避免与 uni.setStorageSync 双重序列化
+const storage = localStorage
+// #endif
+// #ifndef H5
+// 非 H5 端用 uni.storage 适配器
+const storage = {
+	getItem: (key) => {
+		const val = uni.getStorageSync(key)
+		return val || null
+	},
+	setItem: (key, value) => {
+		uni.setStorageSync(key, value)
+	},
+	removeItem: (key) => {
+		uni.removeStorageSync(key)
 	}
-}))
+}
+// #endif
+
+pinia.use(createPersistedState({ storage }))
 
 export default pinia

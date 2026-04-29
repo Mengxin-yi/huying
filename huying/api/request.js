@@ -14,6 +14,13 @@
 import auth from '@/common/js/utils/auth.js'
 import { REQUEST_TIMEOUT, MAX_RETRY_COUNT } from '@/common/js/constants.js'
 
+// #ifdef H5
+const BASE_URL = ''
+// #endif
+// #ifndef H5
+const BASE_URL = 'https://ugoo.ugoolink.com/'
+// #endif
+
 // 请求队列（用于防止重复请求）
 const pendingRequests = new Map() // 正在进行的请求集合
 
@@ -93,7 +100,7 @@ const request = (method, url, data = {}, successKey = 'status_code', isRetry = f
 			data: cleanData,
 			header: {
 				'app-name': 'huying',
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
 			},
 			timeout: REQUEST_TIMEOUT,
 			success: (res) => {
@@ -156,7 +163,7 @@ const request = (method, url, data = {}, successKey = 'status_code', isRetry = f
 					uni.hideLoading()
 				}
 				pendingRequests.delete(requestKey)
-
+				console.log(err)
 				// 网络错误
 				uni.showToast({
 					title: '网络异常，请检查网络连接',
@@ -257,7 +264,12 @@ const handleAuthError = (resInfo, context) => {
 	}
 
 	// 尝试用凭证重新登录
+	// #ifdef H5
 	const loginUrl = credential.tel ? '/bpi/tel_login' : '/bpi/login'
+	// #endif
+	// #ifndef H5
+	const loginUrl = credential.tel ? BASE_URL + '/tel_login' : BASE_URL + '/login'
+	// #endif
 	const loginData = credential.tel
 		? withToken({ tel: credential.tel, code: credential.code })
 		: { username: credential.username, password: credential.password }
@@ -286,56 +298,27 @@ const handleAuthError = (resInfo, context) => {
  * @param {string} prefix - 接口前缀（/cpi/, /bpi/, /wpi/）
  * @param {string} successKey - 成功状态字段名
  * @returns {Object} 请求方法集合
+ *
+ * H5 端：保留前缀（/bpi/xxx），走 Vite 代理转发
+ * 非 H5 端：去掉前缀，直接拼 BASE_URL（https://ugoo.ugoolink.com/xxx）
  */
 const createRequest = (prefix, successKey) => {
+	// #ifdef H5
+	const urlPrefix = prefix
+	// #endif
+	// #ifndef H5
+	const urlPrefix = ''
+	// #endif
+
+	const buildUrl = (url) => BASE_URL + urlPrefix + url
+
 	return {
-		/**
-		 * GET 请求
-		 * @param {string} url - 接口路径（不含前缀）
-		 * @param {Object} params - 查询参数
-		 * @returns {Promise}
-		 */
-		get: (url, params = {}) => request('GET', prefix + url, withToken(params), successKey),
-
-		/**
-		 * POST 请求
-		 * @param {string} url - 接口路径
-		 * @param {Object} data - 请求数据
-		 * @returns {Promise}
-		 */
-		post: (url, data = {}) => request('POST', prefix + url, withToken(data), successKey),
-
-		/**
-		 * PUT 请求
-		 * @param {string} url - 接口路径
-		 * @param {Object} data - 请求数据
-		 * @returns {Promise}
-		 */
-		put: (url, data = {}) => request('PUT', prefix + url, withToken(data), successKey),
-
-		/**
-		 * DELETE 请求
-		 * @param {string} url - 接口路径
-		 * @param {Object} data - 请求数据
-		 * @returns {Promise}
-		 */
-		delete: (url, data = {}) => request('DELETE', prefix + url, withToken(data), successKey),
-
-		/**
-		 * 文件上传
-		 * @param {string} url - 接口路径
-		 * @param {Object} data - 请求数据（含 files 数组和 formData）
-		 * @returns {Promise}
-		 */
-		upload: (url, data = {}) => upload(prefix + url, withToken(data), successKey),
-
-		/**
-		 * 带分页的 POST 请求
-		 * @param {string} url - 接口路径
-		 * @param {Object} data - 请求数据
-		 * @returns {Promise}
-		 */
-		postPage: (url, data = {}) => request('POST', prefix + url, withToken(withPagination(data)), successKey)
+		get: (url, params = {}) => request('GET', buildUrl(url), withToken(params), successKey),
+		post: (url, data = {}) => request('POST', buildUrl(url), withToken(data), successKey),
+		put: (url, data = {}) => request('PUT', buildUrl(url), withToken(data), successKey),
+		delete: (url, data = {}) => request('DELETE', buildUrl(url), withToken(data), successKey),
+		upload: (url, data = {}) => upload(buildUrl(url), withToken(data), successKey),
+		postPage: (url, data = {}) => request('POST', buildUrl(url), withToken(withPagination(data)), successKey)
 	}
 }
 

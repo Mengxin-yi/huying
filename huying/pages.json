@@ -150,19 +150,24 @@
 			"path": "pages/login/index",
 			"style": {
 				"navigationBarTitleText": "登录",
-				"navigationStyle": "custom"
+				"navigationStyle": "custom",
+				"disableScroll": true
 			}
 		},
 		{
 			"path": "pages/login/register",
 			"style": {
-				"navigationBarTitleText": "注册"
+				"navigationBarTitleText": "注册",
+				"navigationStyle": "custom",
+				"disableScroll": true
 			}
 		},
 		{
 			"path": "pages/login/forgot",
 			"style": {
-				"navigationBarTitleText": "忘记密码"
+				"navigationBarTitleText": "忘记密码",
+				"navigationStyle": "custom",
+				"disableScroll": true
 			}
 		}
 	],

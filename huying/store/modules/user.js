@@ -3,13 +3,14 @@
  */
 
 import { defineStore } from 'pinia'
-import { userApi } from '@/api/index.js'
+import { userApi, commonApi } from '@/api/index.js'
 import auth from '@/common/js/utils/auth.js'
 
 export const useUserStore = defineStore('user', {
 	state: () => ({
 		token: '', // 用户登录凭证
 		userInfo: null, // 用户基本信息
+		vipInfo: null, // 用户会员信息
 		isLoggedIn: false, // 登录状态
 		permissions: [] // 用户权限列表
 	}),
@@ -23,12 +24,17 @@ export const useUserStore = defineStore('user', {
 		/**
 		 * 获取用户头像
 		 */
-		avatar: (state) => state.userInfo?.avatar || '',
+		avatar: (state) => state.userInfo?.avatar_img || state.userInfo?.avatar || '',
 
 		/**
 		 * 是否为 VIP 用户
 		 */
-		isVip: (state) => state.userInfo?.is_vip || false
+		isVip: (state) => state.vipInfo?.user_role !== '普通用户',
+
+		/**
+		 * VIP 等级标签
+		 */
+		vipLabel: (state) => state.vipInfo?.current_vip_label || '普通用户'
 	},
 
 	actions: {
@@ -43,8 +49,10 @@ export const useUserStore = defineStore('user', {
 			auth.setToken(res.token)
 			auth.setCredential(data)
 			auth.setUsername(data.username)
-			// 获取权限
-			await this.fetchPermissions()
+			// 获取用户信息、会员信息和权限（失败不影响登录）
+			try { await this.fetchProfile() } catch (e) { /* ignore */ }
+			try { await this.fetchVipInfo() } catch (e) { /* ignore */ }
+			try { await this.fetchPermissions() } catch (e) { /* ignore */ }
 			return res
 		},
 
@@ -59,8 +67,10 @@ export const useUserStore = defineStore('user', {
 			auth.setToken(res.token)
 			auth.setCredential(data)
 			auth.setUsername(data.tel)
-			// 获取权限
-			await this.fetchPermissions()
+			// 获取用户信息、会员信息和权限（失败不影响登录）
+			try { await this.fetchProfile() } catch (e) { /* ignore */ }
+			try { await this.fetchVipInfo() } catch (e) { /* ignore */ }
+			try { await this.fetchPermissions() } catch (e) { /* ignore */ }
 			return res
 		},
 
@@ -75,6 +85,7 @@ export const useUserStore = defineStore('user', {
 			}
 			this.token = ''
 			this.userInfo = null
+			this.vipInfo = null
 			this.isLoggedIn = false
 			this.permissions = []
 			auth.clearLoginState()
@@ -87,6 +98,15 @@ export const useUserStore = defineStore('user', {
 			const res = await userApi.getProfile()
 			this.userInfo = res.item || res
 			return this.userInfo
+		},
+
+		/**
+		 * 获取用户会员信息
+		 */
+		async fetchVipInfo() {
+			const res = await commonApi.getUserVip()
+			this.vipInfo = res.item || res
+			return this.vipInfo
 		},
 
 		/**
@@ -124,6 +144,6 @@ export const useUserStore = defineStore('user', {
 
 	// 持久化配置
 	persist: {
-		paths: ['token', 'userInfo', 'isLoggedIn', 'permissions']
+		paths: ['token', 'userInfo', 'vipInfo', 'isLoggedIn', 'permissions']
 	}
 })
