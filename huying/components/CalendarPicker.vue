@@ -1,6 +1,6 @@
 <template>
   <view class="calendar">
-    <!-- 头部：月份切换 + 今天按钮 -->
+    <!-- 头部：月份切换 + 展开/收起 -->
     <view class="calendar__header">
       <view class="calendar__nav">
         <view class="calendar__arrow" @click="prevPage">
@@ -11,8 +11,9 @@
           <text class="calendar__arrow-icon">&#9654;</text>
         </view>
       </view>
-      <view v-if="showToday" class="calendar__today" @click="goToToday">
-        <text class="calendar__today-text">今天</text>
+      <view class="calendar__toggle" @click="toggleMode">
+        <text class="calendar__toggle-icon" :class="{ 'calendar__toggle-icon--expanded': currentMode === 'month' }">&#9650;</text>
+        <text class="calendar__toggle-text">{{ currentMode === 'month' ? '收起' : '展开' }}</text>
       </view>
     </view>
 
@@ -47,12 +48,6 @@
         <view v-if="cell.dateStr === todayStr && cell.dateStr !== selectedDateStr" class="calendar__today-line" />
       </view>
     </view>
-
-    <!-- 折叠手柄 -->
-    <view class="calendar__handle" @click="toggleMode">
-      <text class="calendar__handle-icon" :class="{ 'calendar__handle-icon--expanded': currentMode === 'month' }">&#9650;</text>
-      <text class="calendar__handle-text">{{ currentMode === 'month' ? '收起' : '展开' }}</text>
-    </view>
   </view>
 </template>
 
@@ -63,7 +58,6 @@ const props = defineProps({
   mode: { type: String, default: 'week', validator: v => ['week', 'month'].includes(v) },
   selectedDate: { type: String, default: '' },
   marks: { type: Array, default: () => [] },
-  showToday: { type: Boolean, default: true },
   minDate: { type: String, default: '' },
   maxDate: { type: String, default: '' }
 })
@@ -356,15 +350,26 @@ defineExpose({
   color: $text-color;
 }
 
-.calendar__today {
+.calendar__toggle {
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
   padding: $spacing-xs $spacing-sm;
-  border-radius: $btn-radius;
-  background-color: $primary-color;
 }
 
-.calendar__today-text {
+.calendar__toggle-icon {
+  font-size: 20rpx;
+  color: $text-color-weak;
+  transition: transform 300ms ease;
+}
+
+.calendar__toggle-icon--expanded {
+  transform: rotate(180deg);
+}
+
+.calendar__toggle-text {
   font-size: 24rpx;
-  color: $uni-text-color-inverse;
+  color: $text-color-weak;
 }
 
 /* 星期标题栏 */
@@ -455,29 +460,5 @@ defineExpose({
   width: 4rpx;
   height: 4rpx;
   border-radius: 50%;
-}
-
-/* 折叠手柄 */
-.calendar__handle {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: $spacing-xs 0 0;
-}
-
-.calendar__handle-icon {
-  font-size: 20rpx;
-  color: $text-color-weak;
-  transition: transform 300ms ease;
-}
-
-.calendar__handle-icon--expanded {
-  transform: rotate(180deg);
-}
-
-.calendar__handle-text {
-  font-size: 20rpx;
-  color: $text-color-weak;
-  margin-top: 2rpx;
 }
 </style>
