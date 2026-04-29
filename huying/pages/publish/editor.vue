@@ -16,7 +16,7 @@
 						<text :class="['form__picker-text', !form.type && 'form__picker-text--placeholder']">
 							{{ form.type || '请选择类型' }}
 						</text>
-						<u-icon name="arrow-down" size="24" color="#999"></u-icon>
+						<u-icon name="arrow-down" style="margin-left: 10rpx;" size="18" color="#999"></u-icon>
 					</view>
 				</picker>
 			</view>
@@ -238,7 +238,7 @@
 		const param = {
 			title,
 			content,
-			msg_type: form.type || ''
+			type: form.type || ''
 		}
 
 		// 图片文件

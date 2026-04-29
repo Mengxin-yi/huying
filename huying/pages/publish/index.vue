@@ -9,7 +9,15 @@
 				<view class="summary__date">{{ dateLabel }}</view>
 				<view v-if="!isToday" class="summary__today" @click="goToToday">回到今天</view>
 			</view>
-			<text class="summary__text">{{ publishLabel }}</text>
+			<view class="summary__footer">
+				<text class="summary__text">{{ publishLabel }}</text>
+				<!-- 留言与点赞入口 -->
+				<view v-if="unreadNum > 0" class="summary__badge-btn" @click="goCommentList">
+					<uni-badge :text="unreadNum" size="small" absolute="rightBottom" :offset="[80, 0]">
+						<text class="summary__badge-text">留言与点赞</text>
+					</uni-badge>
+				</view>
+			</view>
 		</view>
 
 		<!-- 加载动画 -->
@@ -26,11 +34,23 @@
 					<view class="task-card" @click="onCardClick(item)">
 						<!-- 左侧：类型标签 -->
 						<view v-if="item.msg_type" class="task-card__type">{{ item.msg_type }}</view>
-						<!-- 右侧：标题、内容、时间 -->
+						<!-- 右侧：标题、内容、时间、互动数据 -->
 						<view class="task-card__body">
 							<text class="task-card__title">{{ item.title }}</text>
 							<text v-if="item.content" class="task-card__content">{{ item.content }}</text>
-							<text class="task-card__time">{{ item.publish_time }}</text>
+							<view class="task-card__footer">
+								<text class="task-card__time">{{ item.publish_time }}</text>
+								<view class="task-card__stats">
+									<view v-if="item.like_num" class="task-card__stat">
+										<u-icon name="heart" size="14" color="#999"></u-icon>
+										<text class="task-card__stat-num">{{ item.like_num }}</text>
+									</view>
+									<view v-if="item.comment_num" class="task-card__stat">
+										<u-icon name="chat" size="14" color="#999"></u-icon>
+										<text class="task-card__stat-num">{{ item.comment_num }}</text>
+									</view>
+								</view>
+							</view>
 						</view>
 					</view>
 				</uni-swipe-action-item>
@@ -56,13 +76,15 @@
 		computed
 	} from 'vue'
 	import {
-		onPullDownRefresh
+		onPullDownRefresh,
+		onShow
 	} from '@dcloudio/uni-app'
 	import CalendarPicker from '@/components/CalendarPicker.vue'
 	import {
 		getPublishList,
 		getPublishNum,
-		deletePublish
+		deletePublish,
+		getCommentLikeNum
 	} from '@/api/modules/publish.js'
 
 	/** 日历组件引用 */
@@ -122,29 +144,35 @@
 
 	/** 滑动按钮点击 */
 	function onSwipeClick(e, item) {
-		const action = e.content.text
+		const action = e?.content?.text || ''
 		if (action === '删除') {
 			uni.showModal({
+				title: '提示',
 				content: '是否删除本条发布？',
-				success: async (res) => {
+				success: (res) => {
 					if (res.confirm) {
-						try {
-							await deletePublish({
-								id: item.data_id
-							})
-							uni.showToast({
-								title: '删除成功',
-								icon: 'success'
-							})
-							refreshCurrentData()
-						} catch (err) {
-							uni.showToast({
-								title: String(err),
-								icon: 'none'
-							})
-						}
+						handleDelete(item)
 					}
 				}
+			})
+		}
+	}
+
+	/** 执行删除操作 */
+	async function handleDelete(item) {
+		try {
+			await deletePublish({
+				data_id: item.data_id
+			})
+			uni.showToast({
+				title: '删除成功',
+				icon: 'success'
+			})
+			refreshCurrentData()
+		} catch (err) {
+			uni.showToast({
+				title: String(err),
+				icon: 'none'
 			})
 		}
 	}
@@ -152,7 +180,7 @@
 	/** 点击发布卡片，跳转预览页 */
 	function onCardClick(item) {
 		uni.navigateTo({
-			url: `/pages/publish/preview?id=${item.data_id}`
+			url: `/pages/publish/preview?data_id=${item.data_id}&data_type=${item.data_type}`
 		})
 	}
 
@@ -275,6 +303,44 @@
 		})
 	}
 
+	/** 跳转到评论列表页面 */
+	function goCommentList() {
+		uni.navigateTo({
+			url: '/pages/publish/pllist'
+		})
+	}
+
+	/** 未读互动数量（留言+点赞） */
+	const unreadNum = ref(0)
+
+	/** 更新 tabBar 角标（发布 tab 索引为 3） */
+	async function updateTabBadge() {
+		try {
+			const res = await getCommentLikeNum({
+				_silent: true,
+				_no_disturb: true
+			})
+			if (res.num > 0) {
+				unreadNum.value = res.num
+				uni.setTabBarBadge({
+					index: 3,
+					text: res.num > 99 ? '99+' : String(res.num)
+				})
+			} else {
+				unreadNum.value = 0
+				uni.removeTabBarBadge({ index: 3 })
+			}
+		} catch (e) {
+			// 获取失败不显示角标
+		}
+	}
+
+	/** 页面每次显示时刷新角标和数据 */
+	onShow(() => {
+		updateTabBadge()
+		refreshCurrentData()
+	})
+
 	// 页面加载时初始化
 	selectedDate.value = getToday()
 	fetchMonthNum(getCurrentMonth())
@@ -315,6 +381,25 @@
 		&__text {
 			font-size: 28rpx;
 			color: $uni-text-color-grey;
+		}
+
+		&__footer {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+		}
+
+		&__badge-btn {
+			flex-shrink: 0;
+		}
+
+		&__badge-text {
+			display: inline-block;
+			font-size: 26rpx;
+			color: $primary-color;
+			background-color: rgba($primary-color, 0.1);
+			padding: 8rpx 24rpx;
+			border-radius: $uni-border-radius-sm;
 		}
 	}
 
@@ -392,11 +477,32 @@
 			overflow: hidden;
 		}
 
+		&__footer {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			margin-top: $spacing-xs;
+		}
+
 		&__time {
 			font-size: 24rpx;
 			color: $uni-text-color-grey;
-			margin-top: $spacing-xs;
-			align-self: flex-end;
+		}
+
+		&__stats {
+			display: flex;
+			gap: $spacing-md;
+		}
+
+		&__stat {
+			display: flex;
+			align-items: center;
+			gap: 4rpx;
+		}
+
+		&__stat-num {
+			font-size: 22rpx;
+			color: $uni-text-color-grey;
 		}
 
 		&__type {

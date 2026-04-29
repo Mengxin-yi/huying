@@ -92,6 +92,12 @@
 			}
 		},
 		{
+			"path": "pages/publish/pllist",
+			"style": {
+				"navigationBarTitleText": "留言与点赞"
+			}
+		},
+		{
 			"path": "pages/prefer/index",
 			"style": {
 				"navigationBarTitleText": "我的",
@@ -105,6 +111,12 @@
 			"path": "pages/prefer/profile",
 			"style": {
 				"navigationBarTitleText": "个人资料"
+			}
+		},
+		{
+			"path": "pages/prefer/edit-username",
+			"style": {
+				"navigationBarTitleText": "修改用户名"
 			}
 		},
 		{
@@ -126,6 +138,18 @@
 			}
 		},
 		{
+			"path": "pages/prefer/account-security",
+			"style": {
+				"navigationBarTitleText": "账号与安全"
+			}
+		},
+		{
+			"path": "pages/prefer/wechat-bind",
+			"style": {
+				"navigationBarTitleText": "微信绑定"
+			}
+		},
+		{
 			"path": "pages/prefer/about",
 			"style": {
 				"navigationBarTitleText": "关于"
@@ -135,6 +159,18 @@
 			"path": "pages/prefer/feedback",
 			"style": {
 				"navigationBarTitleText": "意见反馈"
+			}
+		},
+		{
+			"path": "pages/prefer/agreement",
+			"style": {
+				"navigationBarTitleText": "用户使用协议"
+			}
+		},
+		{
+			"path": "pages/prefer/privacy",
+			"style": {
+				"navigationBarTitleText": "隐私协议"
 			}
 		},
 		{
