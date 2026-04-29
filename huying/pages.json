@@ -11,7 +11,7 @@
 		{
 			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "今日事",
+				"navigationBarTitleText": "事程",
 				"enablePullDownRefresh": true
 			}
 		},
@@ -94,7 +94,11 @@
 		{
 			"path": "pages/prefer/index",
 			"style": {
-				"navigationBarTitleText": "我的"
+				"navigationBarTitleText": "我的",
+				"disableScroll": true,
+				"app-plus": {
+					"bounce": "none"
+				}
 			}
 		},
 		{
@@ -136,7 +140,37 @@
 		{
 			"path": "pages/prefer/company",
 			"style": {
-				"navigationBarTitleText": "企业认证"
+				"navigationBarTitleText": "我的认证"
+			}
+		},
+		{
+			"path": "pages/prefer/mall",
+			"style": {
+				"navigationBarTitleText": "会员商城"
+			}
+		},
+		{
+			"path": "pages/prefer/publish",
+			"style": {
+				"navigationBarTitleText": "我的发布"
+			}
+		},
+		{
+			"path": "pages/prefer/subscribe",
+			"style": {
+				"navigationBarTitleText": "我的订阅"
+			}
+		},
+		{
+			"path": "pages/prefer/card",
+			"style": {
+				"navigationBarTitleText": "我的名片"
+			}
+		},
+		{
+			"path": "pages/prefer/contact",
+			"style": {
+				"navigationBarTitleText": "联系我们"
 			}
 		},
 		{
@@ -187,7 +221,7 @@
 				"pagePath": "pages/index/index",
 				"iconPath": "static/icon/tab-task.png",
 				"selectedIconPath": "static/icon/tab-task-active.png",
-				"text": "今日事"
+				"text": "事程"
 			},
 			{
 				"pagePath": "pages/weiguang/index",

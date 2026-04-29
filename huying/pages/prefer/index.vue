@@ -1,44 +1,86 @@
 <template>
-	<view class="page">
+	<view class="page" @touchmove.stop.prevent>
 		<!-- 用户信息头部 -->
-		<view class="header">
-			<view class="header__inner">
-				<view class="user-avatar" @click="goProfile">
-					<image v-if="userStore.avatar" class="user-avatar__img" :src="userStore.avatar" mode="aspectFill" />
-					<view v-else class="user-avatar__placeholder">
-						<u-icon name="account" size="28" color="#fff"></u-icon>
+		<view class="profile-card" @click="userStore.isLoggedIn ? gotoPage('/pages/prefer/profile') : goLogin()">
+			<view class="profile-card__avatar" @click="goProfile">
+				<image v-if="userStore.avatar" class="profile-card__avatar-img" :src="userStore.avatar" mode="aspectFill" />
+				<view v-else class="profile-card__avatar-default">
+					<u-icon name="account" size="28" color="#ccc"></u-icon>
+				</view>
+			</view>
+			<view class="profile-card__info">
+				<view class="profile-card__row">
+					<text class="profile-card__name">{{ userStore.username || '未登录' }}</text>
+					<view class="profile-card__vip" v-if="userStore.isLoggedIn && userStore.isVip">
+						<text class="profile-card__vip-text">{{ userStore.vipLabel }}</text>
 					</view>
 				</view>
-				<view class="user-info">
-					<view class="user-info__row">
-						<text class="user-info__name">{{ userStore.username || '未登录' }}</text>
-						<view class="user-info__vip" v-if="userStore.isLoggedIn && userStore.vipLabel">
-							<text class="user-info__vip-text">{{ userStore.vipLabel }}</text>
-						</view>
-					</view>
-					<text class="user-info__type" v-if="userStore.isLoggedIn">
-						{{ userStore.userInfo?.user_type === '企事业单位' ? '单位用户' : (userStore.userInfo?.user_type || '个人用户') }}
-					</text>
-					<text class="user-info__login" v-else @click="goLogin">点击登录</text>
-				</view>
+				<text class="profile-card__type" v-if="userStore.isLoggedIn">
+					{{ userStore.userInfo?.user_type === '企事业单位' ? '单位用户' : (userStore.userInfo?.user_type || '个人用户') }}
+				</text>
+				<text class="profile-card__login" v-else @click="goLogin">点击登录</text>
+			</view>
+			<u-icon name="arrow-right" size="16" color="#ccc"></u-icon>
+		</view>
+
+		<!-- 会员与订单 -->
+		<view class="menu-card">
+			<view class="menu-item" @click="gotoPage('/pages/prefer/vip')">
+				<u-icon name="star" size="20" color="#FFA500"></u-icon>
+				<text class="menu-item__text">我的会员</text>
+				<u-icon name="arrow-right" size="16" color="#ccc"></u-icon>
+			</view>
+			<view class="menu-item" @click="gotoPage('/pages/prefer/mall')">
+				<u-icon name="shopping-cart" size="20" color="#FF6B81"></u-icon>
+				<text class="menu-item__text">会员商城</text>
+				<u-icon name="arrow-right" size="16" color="#ccc"></u-icon>
+			</view>
+			<view class="menu-item" @click="gotoPage('/pages/prefer/order')">
+				<u-icon name="order" size="20" color="#666"></u-icon>
+				<text class="menu-item__text">我的订单</text>
+				<u-icon name="arrow-right" size="16" color="#ccc"></u-icon>
 			</view>
 		</view>
 
-		<!-- 功能菜单 -->
+		<!-- 内容管理 -->
 		<view class="menu-card">
-			<view class="menu-item" @click="gotoPage('/pages/prefer/about')">
-				<u-icon name="info-circle" size="20" color="#666"></u-icon>
-				<text class="menu-item__text">关于我们</text>
+			<view class="menu-item" @click="gotoPage('/pages/prefer/publish')">
+				<u-icon name="file-text" size="20" color="#666"></u-icon>
+				<text class="menu-item__text">我的发布</text>
 				<u-icon name="arrow-right" size="16" color="#ccc"></u-icon>
 			</view>
-			<view class="menu-item" @click="gotoPage('/pages/prefer/feedback')">
-				<u-icon name="edit-pen" size="20" color="#666"></u-icon>
-				<text class="menu-item__text">意见反馈</text>
+			<view class="menu-item" @click="gotoPage('/pages/prefer/subscribe')">
+				<u-icon name="bookmark" size="20" color="#666"></u-icon>
+				<text class="menu-item__text">我的订阅</text>
 				<u-icon name="arrow-right" size="16" color="#ccc"></u-icon>
 			</view>
 			<view class="menu-item" @click="gotoPage('/pages/prefer/company')">
 				<u-icon name="home" size="20" color="#666"></u-icon>
-				<text class="menu-item__text">企业信息</text>
+				<text class="menu-item__text">我的认证</text>
+				<u-icon name="arrow-right" size="16" color="#ccc"></u-icon>
+			</view>
+			<view class="menu-item" @click="gotoPage('/pages/prefer/card')">
+				<u-icon name="account" size="20" color="#666"></u-icon>
+				<text class="menu-item__text">我的名片</text>
+				<u-icon name="arrow-right" size="16" color="#ccc"></u-icon>
+			</view>
+		</view>
+
+		<!-- 帮助与设置 -->
+		<view class="menu-card">
+			<view class="menu-item" @click="gotoPage('/pages/prefer/feedback')">
+				<u-icon name="chat" size="20" color="#666"></u-icon>
+				<text class="menu-item__text">帮助与反馈</text>
+				<u-icon name="arrow-right" size="16" color="#ccc"></u-icon>
+			</view>
+			<view class="menu-item" @click="gotoPage('/pages/prefer/contact')">
+				<u-icon name="phone" size="20" color="#666"></u-icon>
+				<text class="menu-item__text">联系我们</text>
+				<u-icon name="arrow-right" size="16" color="#ccc"></u-icon>
+			</view>
+			<view class="menu-item" @click="gotoPage('/pages/prefer/settings')">
+				<u-icon name="setting" size="20" color="#666"></u-icon>
+				<text class="menu-item__text">设置</text>
 				<u-icon name="arrow-right" size="16" color="#ccc"></u-icon>
 			</view>
 		</view>
@@ -53,156 +95,183 @@
 </template>
 
 <script setup>
-import { useUserStore } from '@/store/modules/user.js'
-import page from '@/common/js/utils/page.js'
+	import {
+		onShow
+	} from '@dcloudio/uni-app'
+	import {
+		useUserStore
+	} from '@/store/modules/user.js'
+	import page from '@/common/js/utils/page.js'
 
-const userStore = useUserStore()
-const goLogin = () => {
-	uni.navigateTo({ url: '/pages/login/index' })
-}
+	const userStore = useUserStore()
 
-const goProfile = () => {
-	if (!userStore.isLoggedIn) {
-		goLogin()
-	}
-}
-
-const gotoPage = (path) => {
-	page.gotoPage(path)
-}
-
-const handleLogout = async () => {
-	uni.showModal({
-		title: '提示',
-		content: '确定退出登录吗？',
-		success: async (res) => {
-			if (res.confirm) {
-				await userStore.logout()
-				uni.reLaunch({ url: '/pages/login/index' })
+	onShow(async () => {
+		if (userStore.isLoggedIn) {
+			try {
+				await Promise.all([
+					userStore.fetchProfile(),
+					userStore.fetchVipInfo()
+				])
+			} catch (e) {
+				// 静默刷新，失败不提示
 			}
 		}
 	})
-}
+	const goLogin = () => {
+		uni.navigateTo({
+			url: '/pages/login/index'
+		})
+	}
+
+	const goProfile = () => {
+		if (!userStore.isLoggedIn) {
+			goLogin()
+		}
+	}
+
+	const gotoPage = (path) => {
+		page.gotoPage(path)
+	}
+
+	const handleLogout = async () => {
+		uni.showModal({
+			title: '提示',
+			content: '确定退出登录吗？',
+			success: async (res) => {
+				if (res.confirm) {
+					await userStore.logout()
+					uni.reLaunch({
+						url: '/pages/login/index'
+					})
+				}
+			}
+		})
+	}
 </script>
 
 <style lang="scss" scoped>
-.page {
-	min-height: 100vh;
-	background-color: $bg-color;
-}
-
-/* 用户信息头部 */
-.header {
-	background: linear-gradient(135deg, $primary-color, $primary-color-light);
-	padding: 80rpx 60rpx 60rpx;
-
-	&__inner {
-		display: flex;
-		align-items: center;
-	}
-}
-
-.user-avatar {
-	width: 120rpx;
-	height: 120rpx;
-	margin-right: $spacing-lg;
-	flex-shrink: 0;
-
-	&__img {
-		width: 120rpx;
-		height: 120rpx;
-		border-radius: 50%;
-		border: 4rpx solid rgba(255, 255, 255, 0.5);
+	.page {
+		height: 100vh;
+		overflow: hidden;
+		background-color: $bg-color;
+		padding: $spacing-md;
 	}
 
-	&__placeholder {
-		width: 120rpx;
-		height: 120rpx;
-		border-radius: 50%;
-		background-color: rgba(255, 255, 255, 0.3);
+	/* 用户信息头部 */
+	.profile-card {
 		display: flex;
 		align-items: center;
+		padding: $spacing-lg;
+		background-color: $card-bg;
+		border-radius: $card-radius;
+		box-shadow: $shadow-light;
+
+		&__avatar {
+			width: 100rpx;
+			height: 100rpx;
+			margin-right: $spacing-md;
+			flex-shrink: 0;
+		}
+
+		&__avatar-img {
+			width: 100rpx;
+			height: 100rpx;
+			border-radius: 50%;
+		}
+
+		&__avatar-default {
+			width: 100rpx;
+			height: 100rpx;
+			border-radius: 50%;
+			background-color: $uni-bg-color-grey;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		&__info {
+			flex: 1;
+			min-width: 0;
+		}
+
+		&__row {
+			display: flex;
+			align-items: center;
+			flex-wrap: wrap;
+			gap: $spacing-xs;
+		}
+
+		&__name {
+			font-size: 32rpx;
+			font-weight: bold;
+			color: $text-color;
+		}
+
+		&__vip {
+			background: linear-gradient(135deg, $vip-color-start, $vip-color-end);
+			border-radius: $btn-radius;
+			padding: 2rpx 12rpx;
+		}
+
+		&__vip-text {
+			font-size: 20rpx;
+			color: #fff;
+			font-weight: bold;
+		}
+
+		&__type {
+			display: inline-block;
+			font-size: 24rpx;
+			color: $text-color-weak;
+			margin-top: $spacing-xs;
+			background-color: $uni-bg-color-grey;
+			padding: 2rpx 12rpx;
+			border-radius: $btn-radius;
+		}
+
+		&__login {
+			font-size: 26rpx;
+			color: $text-color-weak;
+			margin-top: $spacing-xs;
+			display: block;
+		}
+	}
+
+	/* 菜单卡片 */
+	.menu-card {
+		margin: $spacing-sm 0;
+		background-color: $card-bg;
+		border-radius: $card-radius;
+		overflow: hidden;
+		box-shadow: $shadow-light;
+	}
+
+	.menu-item {
+		display: flex;
+		align-items: center;
+		padding: $spacing-md $spacing-lg;
+		border-bottom: 1px solid $border-color;
+
+		&:last-child {
+			border-bottom: none;
+		}
+
+		&__text {
+			flex: 1;
+			font-size: 28rpx;
+			color: $text-color;
+			margin-left: $spacing-sm;
+		}
+	}
+
+	/* 退出登录 */
+	.logout-btn {
 		justify-content: center;
+
+		&__text {
+			font-size: 28rpx;
+			color: $danger-color;
+			text-align: center;
+		}
 	}
-}
-
-.user-info {
-	flex: 1;
-
-	&__row {
-		display: flex;
-		align-items: center;
-	}
-
-	&__name {
-		font-size: 36rpx;
-		font-weight: bold;
-		color: #FFFFFF;
-	}
-
-	&__vip {
-		margin-left: $spacing-sm;
-		background: linear-gradient(135deg, #FFC107, #FF9800);
-		border-radius: 20rpx;
-		padding: 4rpx 16rpx;
-	}
-
-	&__vip-text {
-		font-size: 20rpx;
-		color: #FFFFFF;
-		font-weight: bold;
-	}
-
-	&__type {
-		font-size: 24rpx;
-		color: rgba(255, 255, 255, 0.8);
-		margin-top: $spacing-xs;
-		display: block;
-	}
-
-	&__login {
-		font-size: 28rpx;
-		color: rgba(255, 255, 255, 0.8);
-		margin-top: $spacing-xs;
-		display: block;
-	}
-}
-
-/* 菜单卡片 */
-.menu-card {
-	margin: $spacing-md $page-padding;
-	background-color: $card-bg;
-	border-radius: $card-radius;
-	overflow: hidden;
-	box-shadow: $shadow-light;
-}
-
-.menu-item {
-	display: flex;
-	align-items: center;
-	padding: $spacing-md $spacing-lg;
-	border-bottom: 1px solid $border-color;
-
-	&:last-child {
-		border-bottom: none;
-	}
-
-	&__text {
-		flex: 1;
-		font-size: 28rpx;
-		color: $text-color;
-		margin-left: $spacing-sm;
-	}
-}
-
-/* 退出登录 */
-.logout-btn {
-	justify-content: center;
-
-	&__text {
-		font-size: 28rpx;
-		color: $danger-color;
-		text-align: center;
-	}
-}
 </style>

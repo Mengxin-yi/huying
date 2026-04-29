@@ -7,8 +7,18 @@ import { cpi } from '../request.js'
 /**
  * 获取发布列表
  * @param {Object} data - 查询参数
+ * @param {string} data.date - 日期（yyyy-MM-dd）
+ * @param {number} [data.page=1] - 页码
+ * @param {number} [data.page_size=7] - 每页数量
  */
 export const getPublishList = (data) => cpi.post('get_publish_list', data)
+
+/**
+ * 获取发布日历数量（按日期统计）
+ * @param {Object} data - 参数
+ * @param {string} data.date - 月份（yyyy-MM）
+ */
+export const getPublishNum = (data) => cpi.post('get_publish_num', data)
 
 /**
  * 获取发布详情
@@ -52,8 +62,3 @@ export const getCommentLikeData = (data) => cpi.post('get_publish_comment_like_d
  * 获取推送数量
  */
 export const getPushNum = () => cpi.post('get_push_num')
-
-/**
- * 获取发布数量
- */
-export const getPublishNum = () => cpi.post('get_publish_num')

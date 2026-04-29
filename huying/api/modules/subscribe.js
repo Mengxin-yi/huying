@@ -46,3 +46,10 @@ export const getCompanyList = (data) => cpi.post('get_company_list', data)
  * @param {Object} data - 查询参数
  */
 export const getOrderTimeList = (data) => cpi.post('get_push_time_list', data)
+
+/**
+ * 获取每日推送数量（日历标记）
+ * @param {Object} data - 查询参数
+ * @param {string} data.date - 月份字符串（yyyy-MM）
+ */
+export const getPushNum = (data) => cpi.post('get_push_num', data)

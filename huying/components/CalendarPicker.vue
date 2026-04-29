@@ -62,7 +62,7 @@ const props = defineProps({
   maxDate: { type: String, default: '' }
 })
 
-const emit = defineEmits(['select', 'mode-change'])
+const emit = defineEmits(['select', 'mode-change', 'month-change'])
 
 // ==================== 核心状态 ====================
 
@@ -155,7 +155,7 @@ const marksMap = computed(() => {
     if (!map.has(m.date)) map.set(m.date, [])
     const list = map.get(m.date)
     if (list.length < 3) {
-      list.push(m.color || '#007AFF') // 与 uni.scss $primary-color 保持同步
+      list.push(m.color || '#007AFF')
     }
   })
   return map
@@ -212,6 +212,15 @@ watch(() => props.selectedDate, (val) => {
     }
   }
 }, { immediate: true })
+
+/** 监听月份变化，通知父组件 */
+watch(
+  () => `${currentMonth.year}-${currentMonth.month}`,
+  () => {
+    const month = `${currentMonth.year}-${String(currentMonth.month + 1).padStart(2, '0')}`
+    emit('month-change', { month, year: currentMonth.year, monthIndex: currentMonth.month })
+  }
+)
 
 // ==================== 交互逻辑 ====================
 
@@ -457,8 +466,8 @@ defineExpose({
 }
 
 .calendar__dot {
-  width: 4rpx;
-  height: 4rpx;
+  width: 10rpx;
+  height: 5rpx;
   border-radius: 50%;
 }
 </style>

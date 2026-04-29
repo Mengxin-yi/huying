@@ -7,10 +7,13 @@ import { bpi } from '../request.js'
 /**
  * 获取任务列表
  * @param {Object} data - 查询参数
- * @param {string} data.start - 开始日期
- * @param {string} data.end - 结束日期
+ * @param {string} data.remind_time - 日期（yyyy-MM-dd）
+ * @param {number} data.is_finished - 状态（2=全部）
+ * @param {string} data.order_type - 排序方式
+ * @param {number} [data.page] - 页码
+ * @param {number} [data.size] - 每页数量
  */
-export const getNoteList = (data) => bpi.post('note_list', data)
+export const getNoteList = (data) => bpi.postPage('note_list', data)
 
 /**
  * 获取任务详情（编辑用）
@@ -53,7 +56,7 @@ export const editNoteStatus = (data) => bpi.post('note_state_set', data)
 /**
  * 获取日历任务数量（按日期统计）
  * @param {Object} data - 参数
- * @param {string} data.month - 月份（yyyy-MM）
+ * @param {string} data.time - 月份（yyyy-MM）
  */
 export const getNoteCalendar = (data) => bpi.post('note_num', data)
 
