@@ -44,12 +44,12 @@
 
 		<!-- 内容管理 -->
 		<view class="menu-card">
-			<view class="menu-item" @click="gotoPage('/pages/prefer/publish')">
+			<view class="menu-item" @click="gotoPage('/pages/publish/index')">
 				<u-icon name="file-text" size="20" color="#666"></u-icon>
 				<text class="menu-item__text">我的发布</text>
 				<u-icon name="arrow-right" size="16" color="#ccc"></u-icon>
 			</view>
-			<view class="menu-item" @click="gotoPage('/pages/prefer/subscribe')">
+			<view class="menu-item" @click="gotoPage('/pages/subscribe/index')">
 				<u-icon name="bookmark" size="20" color="#666"></u-icon>
 				<text class="menu-item__text">我的订阅</text>
 				<u-icon name="arrow-right" size="16" color="#ccc"></u-icon>
@@ -82,13 +82,6 @@
 				<u-icon name="setting" size="20" color="#666"></u-icon>
 				<text class="menu-item__text">设置</text>
 				<u-icon name="arrow-right" size="16" color="#ccc"></u-icon>
-			</view>
-		</view>
-
-		<!-- 退出登录 -->
-		<view class="menu-card" v-if="userStore.isLoggedIn">
-			<view class="menu-item logout-btn" @click="handleLogout">
-				<text class="logout-btn__text">退出登录</text>
 			</view>
 		</view>
 	</view>
@@ -144,21 +137,6 @@
 
 	const gotoPage = (path) => {
 		page.gotoPage(path)
-	}
-
-	const handleLogout = async () => {
-		uni.showModal({
-			title: '提示',
-			content: '确定退出登录吗？',
-			success: async (res) => {
-				if (res.confirm) {
-					await userStore.logout()
-					uni.reLaunch({
-						url: '/pages/login/index'
-					})
-				}
-			}
-		})
 	}
 </script>
 
@@ -275,17 +253,6 @@
 			font-size: 28rpx;
 			color: $text-color;
 			margin-left: $spacing-sm;
-		}
-	}
-
-	/* 退出登录 */
-	.logout-btn {
-		justify-content: center;
-
-		&__text {
-			font-size: 28rpx;
-			color: $danger-color;
-			text-align: center;
 		}
 	}
 </style>

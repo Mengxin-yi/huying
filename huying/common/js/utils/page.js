@@ -58,7 +58,7 @@ const gotoPage = (path) => {
 	const fullPath = '/pages/' + normalizedPath
 	// TabBar 页面使用 switchTab
 	const tabPages = ['index/index', 'weiguang/index', 'subscribe/index', 'publish/index', 'prefer/index']
-	const isTab = tabPages.some(tab => path === tab)
+	const isTab = tabPages.some(tab => normalizedPath === tab)
 	if (isTab) {
 		uni.switchTab({ url: fullPath })
 	} else {

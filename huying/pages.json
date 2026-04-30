@@ -242,7 +242,11 @@
 		{
 			"path": "pages/prefer/card",
 			"style": {
-				"navigationBarTitleText": "我的名片"
+				"navigationBarTitleText": "我的名片",
+				"disableScroll": true,
+				"app-plus": {
+					"bounce": "none"
+				}
 			}
 		},
 		{
