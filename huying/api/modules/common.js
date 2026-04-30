@@ -37,9 +37,18 @@ export const getBillList = (data) => bpi.post('order_list', data)
 
 /**
  * 获取我的订单列表
- * @param {Object} data - 查询参数
+ * @param {Object} data - 查询参数（覆盖默认值）
  */
-export const myOrderList = (data) => bpi.post('my_order_list', data)
+export const myOrderList = (data) => bpi.post('my_order_list', {
+	start_time: '',
+	end_time: '',
+	other_type: '',
+	state: '',
+	kw: '',
+	page: 1,
+	size: 1000,
+	...data
+})
 
 /**
  * 文字内容审核
@@ -53,6 +62,18 @@ export const getWordCheck = (data) => bpi.post('word_check', data)
  * @param {Object} data - 参数
  */
 export const editVipStartTime = (data) => bpi.post('my_order_time_set', data)
+
+/**
+ * 获取我的优惠券列表
+ * @param {Object} data - 查询参数
+ */
+export const getMyCouponList = (data) => bpi.post('my_coupon', data)
+
+/**
+ * 获取优惠券详情
+ * @param {Object} data - 参数
+ */
+export const getCouponDetail = (data) => bpi.post('coupon_editor_get', data)
 
 /**
  * 获取广告横幅列表
