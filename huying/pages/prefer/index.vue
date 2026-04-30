@@ -54,9 +54,9 @@
 				<text class="menu-item__text">我的订阅</text>
 				<u-icon name="arrow-right" size="16" color="#ccc"></u-icon>
 			</view>
-			<view class="menu-item" @click="gotoPage('/pages/prefer/company')">
+			<view class="menu-item" @click="gotoPage(certPath)">
 				<u-icon name="home" size="20" color="#666"></u-icon>
-				<text class="menu-item__text">我的认证</text>
+				<text class="menu-item__text">{{ certLabel }}</text>
 				<u-icon name="arrow-right" size="16" color="#ccc"></u-icon>
 			</view>
 			<view class="menu-item" @click="gotoPage('/pages/prefer/card')">
@@ -101,9 +101,22 @@
 	import {
 		useUserStore
 	} from '@/store/modules/user.js'
+	import { computed } from 'vue'
 	import page from '@/common/js/utils/page.js'
 
 	const userStore = useUserStore()
+
+	/** 是否为单位用户（非个人用户即为单位用户：企事业单位、政府组织、公益组织） */
+	const isCompanyUser = computed(() => {
+		const userType = userStore.userInfo && userStore.userInfo.user_type
+		return !!userType && userType !== '个人用户'
+	})
+
+	/** 认证菜单文字 */
+	const certLabel = computed(() => isCompanyUser.value ? '公司认证' : '我的认证')
+
+	/** 认证页面路径 */
+	const certPath = computed(() => isCompanyUser.value ? '/pages/prefer/company' : '/pages/prefer/personal-cert')
 
 	onShow(async () => {
 		if (userStore.isLoggedIn) {
@@ -171,12 +184,13 @@
 			height: 100rpx;
 			margin-right: $spacing-md;
 			flex-shrink: 0;
+			border-radius: 50%;
+			overflow: hidden;
 		}
 
 		&__avatar-img {
 			width: 100rpx;
 			height: 100rpx;
-			border-radius: 50%;
 		}
 
 		&__avatar-default {

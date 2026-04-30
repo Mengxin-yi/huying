@@ -53,7 +53,9 @@ const gotoPage = (path) => {
 	if (!checkAuth(path)) {
 		return
 	}
-	const fullPath = '/pages/' + path
+		// 兼容带或不带 /pages/ 前缀的路径
+	const normalizedPath = path.replace(/^\/pages\/+/, '')
+	const fullPath = '/pages/' + normalizedPath
 	// TabBar 页面使用 switchTab
 	const tabPages = ['index/index', 'weiguang/index', 'subscribe/index', 'publish/index', 'prefer/index']
 	const isTab = tabPages.some(tab => path === tab)

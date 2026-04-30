@@ -174,9 +174,51 @@
 			}
 		},
 		{
-			"path": "pages/prefer/company",
+			"path": "pages/prefer/help/helpbid",
+			"style": {
+				"navigationBarTitleText": "招标帮助"
+			}
+		},
+		{
+			"path": "pages/prefer/help/helpreserve",
+			"style": {
+				"navigationBarTitleText": "订阅关键词帮助"
+			}
+		},
+		{
+			"path": "pages/prefer/help/wechatnotice",
+			"style": {
+				"navigationBarTitleText": "微信推送帮助"
+			}
+		},
+		{
+			"path": "pages/prefer/help/helpua",
+			"style": {
+				"navigationBarTitleText": "手机参数"
+			}
+		},
+		{
+			"path": "pages/prefer/personal-cert",
 			"style": {
 				"navigationBarTitleText": "我的认证"
+			}
+		},
+		{
+			"path": "pages/prefer/education-add",
+			"style": {
+				"navigationBarTitleText": "新增学历"
+			}
+		},
+		{
+			"path": "pages/prefer/skill-add",
+			"style": {
+				"navigationBarTitleText": "新增技能"
+			}
+		},
+		{
+			"path": "pages/prefer/company",
+			"style": {
+				"navigationBarTitleText": "公司认证"
 			}
 		},
 		{

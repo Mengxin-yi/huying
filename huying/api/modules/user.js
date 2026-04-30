@@ -165,3 +165,48 @@ export const getDefaultAvatarList = () => bpi.post('user_default_avatar_list')
  * 获取用户权限列表
  */
 export const getUserPermissions = () => bpi.postPage('user_perm_list', {})
+
+/**
+ * 获取身份证认证信息
+ */
+export const getCardInfo = () => bpi.post('card_get')
+
+/**
+ * 提交身份证认证信息（支持文件上传）
+ * @param {Object} data - { name, card_num, files: [{name:'front_img',uri}, {name:'back_img',uri}] }
+ */
+export const editCard = (data) => bpi.upload('card_editor', data)
+
+/**
+ * 获取学历认证列表
+ */
+export const getEduList = () => bpi.post('my_edu_list')
+
+/**
+ * 获取技能认证列表
+ */
+export const getSkillList = () => bpi.post('my_skill_list')
+
+/**
+ * 新增学历认证（支持文件上传）
+ * @param {Object} data - { school, level, major, award_time, files }
+ */
+export const addEdu = (data) => bpi.upload('edu_add', data)
+
+/**
+ * 新增技能认证（支持文件上传）
+ * @param {Object} data - { issuing_authority, level, name, award_time, files }
+ */
+export const addSkill = (data) => bpi.upload('skill_add', data)
+
+/**
+ * 撤销学历认证
+ * @param {Object} data - { pk: id }
+ */
+export const deleteEdu = (data) => bpi.post('edu_del', data)
+
+/**
+ * 撤销技能认证
+ * @param {Object} data - { pk: id }
+ */
+export const deleteSkill = (data) => bpi.post('skill_del', data)

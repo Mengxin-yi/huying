@@ -6,6 +6,27 @@ import { defineStore } from 'pinia'
 import { userApi, commonApi } from '@/api/index.js'
 import auth from '@/common/js/utils/auth.js'
 
+// H5 端 API 基础路径为空（走代理），非 H5 端需要完整域名
+// #ifdef H5
+const IMG_BASE = ''
+// #endif
+// #ifndef H5
+const IMG_BASE = 'https://ugoo.ugoolink.com'
+// #endif
+
+/**
+ * 补全图片 URL，处理相对路径
+ * @param {string} url - 原始图片路径
+ * @returns {string} 可用的完整 URL
+ */
+const resolveImgUrl = (url) => {
+	if (!url) return ''
+	// 已经是完整 URL（http/https）或 data URI，直接返回
+	if (/^(https?:|data:|\/\/)/.test(url)) return url
+	// 相对路径补全域名
+	return IMG_BASE + (url.startsWith('/') ? url : '/' + url)
+}
+
 export const useUserStore = defineStore('user', {
 	state: () => ({
 		token: '', // 用户登录凭证
@@ -22,9 +43,12 @@ export const useUserStore = defineStore('user', {
 		username: (state) => state.userInfo?.username || '',
 
 		/**
-		 * 获取用户头像
+		 * 获取用户头像（自动补全相对路径）
 		 */
-		avatar: (state) => state.userInfo?.avatar_img || state.userInfo?.avatar || '',
+		avatar: (state) => {
+			const raw = state.userInfo?.avatar_img || state.userInfo?.avatar || ''
+			return resolveImgUrl(raw)
+		},
 
 		/**
 		 * 是否为 VIP 用户
