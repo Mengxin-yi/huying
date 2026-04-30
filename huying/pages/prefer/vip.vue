@@ -16,7 +16,7 @@
 				<!-- 用户名 & VIP 标签 -->
 				<view class="vip-header__info">
 					<view class="vip-header__name-row">
-						<text class="vip-header__name">{{ vipItem.surname || userStore.username }}</text>
+						<text class="vip-header__name">{{ vipItem.username || userStore.username }}</text>
 						<view class="vip-header__badge" v-if="vipItem.current_vip_label">
 							<text class="vip-header__badge-text">{{ vipItem.current_vip_label }}</text>
 						</view>
@@ -351,11 +351,11 @@ onMounted(() => {
 	min-height: 100vh;
 	background-color: $bg-color;
 	padding-bottom: env(safe-area-inset-bottom);
+	padding: $spacing-md;
 }
 
 /* ========== 头部 VIP 卡片 - 浅色系 ========== */
 .vip-header {
-	margin: $page-padding;
 	background-color: $card-bg;
 	border-radius: $card-radius;
 	padding: $spacing-lg;
@@ -464,7 +464,7 @@ onMounted(() => {
 
 /* ========== 服务列表区域 ========== */
 .vip-section {
-	padding: 0 $page-padding;
+	
 	margin-top: $spacing-md;
 }
 
